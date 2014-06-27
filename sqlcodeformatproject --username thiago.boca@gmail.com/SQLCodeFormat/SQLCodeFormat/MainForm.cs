@@ -264,18 +264,49 @@ namespace SQLCodeFormat
 
             List<string> linhas = new List<string>(preText.Split(new string[] { "\r\n" }, StringSplitOptions.RemoveEmptyEntries));
 
+            string linhaanterior = "";
+
             for (int i = 0; i < linhas.Count; i++)
             {
                 String linha = " " + linhas[i].Trim();
-
                 String conteudo = "";
 
-                linha = linha.Replace("& \"\" &", "");
+                //Trata linhas que continuam (usando caractere "_")
+                #region Trata linhas que continuam (caractere "_")
+                if ((linha.IndexOf("\" _") > 0) || (linha.IndexOf(" & _") > 0))
+                {
+                    linhaanterior += linha;
+                    continue;
+                }
+                else
+                {
+                    linha = linhaanterior + linha;
+                    
+                    linha = linha.Replace(" & _", "");
+                    linha = linha.Replace("\" _", "\"");
+                    linha = linha.Replace("\" & \"","");
+                    
+                    linhaanterior = "";
+                }
+                #endregion
+
+                //Replaces
+                #region Replace String
+                linha = linha.Replace("& \"\"\"\" &", "&");
+                linha = linha.Replace("& \"\"\"\"", "");
+
+                linha = linha.Replace("& \"\" &", "&");
                 linha = linha.Replace(" & \"\"", "");
                 linha = linha.Replace("\"\"", "");
-                linha = linha.Replace(" & _", "");
+
+                linha = linha.Replace("& supDuplicaAspas(IIf(", "& IIf((");
+                linha = linha.Replace("& Trim(IIf(", "& IIf((");
+                linha = linha.Replace("& supConverteNumeroFormatoAmericano(IIf(", "& IIf((");
+                linha = linha.Replace("& funSQLAjustaString(IIf(", "& IIf((");
+                #endregion
 
                 //Retira comentários da linha
+                #region Retira comentários da linha
                 if (linha.IndexOf("'", StringComparison.Ordinal) > 0)
                 {
                     int count = linha.Count(c => c == '\'');
@@ -288,8 +319,10 @@ namespace SQLCodeFormat
                         linha = linha.Remove(last);
                     }
                 }
+                #endregion
 
-                //Testa se a linha tem uma string (que não seja dentro de comentário)
+                //Tramento de números concatenados na string
+                #region Tramento de números concatenados na string
                 if ((linha.IndexOf('"') < 0) || ((linha.IndexOf('\'') >= 0) && (linha.IndexOf('\'') < linha.IndexOf('"'))))
                 {
                     if (linha.IndexOf("If ", StringComparison.CurrentCultureIgnoreCase) > 0
@@ -304,17 +337,21 @@ namespace SQLCodeFormat
                     resultado += Regex.Match(linha, @"\d+").Value + Environment.NewLine;
                     continue;
                 }
+                #endregion
+
                 //Testa se a string da linha tem fechamento
                 if (linha.IndexOf('"') == linha.LastIndexOf('"'))
                 {
                     throw new Exception("Linha " + i + " não finaliza string do comando SQL.");
                 }
+
                 //Testa se a string faz parte de uma instrução IF
                 if ((linha.IndexOf('"') > linha.IndexOf(" If ", System.StringComparison.CurrentCultureIgnoreCase)) &&
                     (linha.LastIndexOf('"') < linha.IndexOf("Then", System.StringComparison.CurrentCultureIgnoreCase)))
                 {
                     continue;
                 }
+
                 //Pega instruções após o Then
                 if (linha.IndexOf("Then") >= 0)
                 {
@@ -646,7 +683,7 @@ namespace SQLCodeFormat
         {
             const string THEN = " THEN ";
             const string ELSE = " ELSE ";
-            const string ENDx = " END) ";
+            const string ENDx = " END| ";
             const string END = " END ";
             string resultado = pSQL;
 
@@ -831,6 +868,23 @@ namespace SQLCodeFormat
             textSQL.SelectionLength = 0;
         }
 
+        private void gridParametros_CellEnter(object sender, DataGridViewCellEventArgs e)
+        {
+            if ((gridParametros[1, e.RowIndex].Value != null) && (gridParametros[2, e.RowIndex].Value.ToString().Equals("")))
+            {
+                int s_start = textSQL.SelectionStart, startIndex = 0, index;
+                string word = paramList[e.RowIndex].tag.ToString();
+
+                startIndex = 0;
+                while ((index = textSQL.Text.IndexOf(word, startIndex, StringComparison.CurrentCultureIgnoreCase)) != -1)
+                {
+                    textSQL.Select(index, word.Length);
+
+                    startIndex = index + word.Length;
+                }
+            }
+        }
+
         /// <summary>
         /// Substitui o valor do parâmetro no texto SQL
         /// </summary>
@@ -921,7 +975,7 @@ namespace SQLCodeFormat
 
         private void gridParametros_CellBeginEdit_1(object sender, DataGridViewCellCancelEventArgs e)
         {
-
+            
         }
 
         /// <summary>
@@ -998,6 +1052,7 @@ namespace SQLCodeFormat
             }
         }
         #endregion
+
     }
 
     /// <summary>
