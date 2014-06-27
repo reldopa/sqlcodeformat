@@ -46,11 +46,7 @@ glbSQL = glbSQL & " AND Mov.nrSequencia = QueryMovimento.nrSequenciaSistema),"
 glbSQL = glbSQL & " NrSequenciaSubempenho)) as NroSubempenho,"
 ' --------------------------------------------------------------------------------------------
 glbSQL = glbSQL & "iif(idEmpenho = 2, 'Extra', iif(idEmpenho = 1, iif(dtAnoEmissao < " & Year(glbDtMovimento) & ", 'Restos', 'Orç'), ' ')) as idTipo, "
-glbSQL = glbSQL & "IIF((cdTipoMovimento = 406 or cdTipoMovimento = 407 or cdTipoMovimento = 408 "
-glbSQL = glbSQL & "or cdTipoMovimento = 445 or cdTipoMovimento = 452 or cdTipoMovimento = 454 "
-glbSQL = glbSQL & "or cdTipoMovimento = 461 or cdTipoMovimento = 462 or cdTipoMovimento = 465 "
-glbSQL = glbSQL & "or cdTipoMovimento = 466 or cdTipoMovimento = 473 or cdTipoMovimento = 474 "
-glbSQL = glbSQL & "or cdTipoMovimento = 411 or cdTipoMovimento = 413), VlMovimento * -1, VlMovimento) as ValorMovimento, "
+glbSQL = glbSQL & "IIF(( 1 = 1), VlMovimento * -1, VlMovimento) as ValorMovimento, "
 glbSQL = glbSQL & "IIF((cdTipoMovimento = 406 or cdTipoMovimento = 407 or cdTipoMovimento = 408 "
 glbSQL = glbSQL & "or cdTipoMovimento = 445 or cdTipoMovimento = 452 or cdTipoMovimento = 454 "
 glbSQL = glbSQL & "or cdTipoMovimento = 461 or cdTipoMovimento = 462 or cdTipoMovimento = 465 "
@@ -213,3 +209,152 @@ glbSQL = glbSQL & " ORDER BY dtEmissaoEmpenho"
  glbSQL = glbSQL & ", 0 "
  glbSQL = glbSQL & ", " & locidNaturezaDespesa
  glbSQL = glbSQL & ")"
+
+==============================================================================================================
+
+glbSQL = "INSERT INTO PPAConfiguracaoRelatorio ("
+      glbSQL = glbSQL & "cdRelatorio, "
+      glbSQL = glbSQL & "idRodape, "
+      glbSQL = glbSQL & "nrLinhasSalto, "
+      glbSQL = glbSQL & "dsComentario1, "
+      glbSQL = glbSQL & "dsComentario2, "
+      glbSQL = glbSQL & "dsComentario3, "
+      glbSQL = glbSQL & "cdItemInformadoParametro1, "
+      glbSQL = glbSQL & "cdItemInformadoParametro2, "
+      glbSQL = glbSQL & "cdItemInformadoParametro3, "
+      glbSQL = glbSQL & "cdItemInformadoParametro4, "
+      glbSQL = glbSQL & "cdItemInformadoParametro5, "
+      glbSQL = glbSQL & "cdItemInformadoParametro6, "
+      glbSQL = glbSQL & "nrLinhasMargemSuperior, "
+      glbSQL = glbSQL & "nrEspacosMargemEsquerda, "
+      glbSQL = glbSQL & "idSistemaEntrada) "
+      glbSQL = glbSQL & "VALUES ("
+      glbSQL = glbSQL & glbcdRelatorio                                         ' cdRelatorio
+      glbSQL = glbSQL & ", " & cboImprimeRodape.ListIndex                      ' idRodape
+      glbSQL = glbSQL & ", " & IIf(IsNumeric(msknrSaltoLinhas), msknrSaltoLinhas, 0)      ' nrLinhasSalto
+      glbSQL = glbSQL & ", " & """" & supDuplicaAspas(IIf(Trim(txtdsComentario1) = "", " ", txtdsComentario1)) & """"  ' dsComentario1
+      glbSQL = glbSQL & ", " & """" & supDuplicaAspas(IIf(Trim(txtdsComentario2) = "", " ", txtdsComentario2)) & """"  ' dsComentario2
+      glbSQL = glbSQL & ", " & """" & supDuplicaAspas(IIf(Trim(txtdsComentario3) = "", " ", txtdsComentario3)) & """"  ' dsComentario3
+      glbSQL = glbSQL & ", " & """" & supDuplicaAspas(txtcdParametro1) & """"  ' cdItemInformadoParametro1
+      glbSQL = glbSQL & ", " & """" & supDuplicaAspas(txtcdParametro2) & """"  ' cdItemInformadoParametro2
+      glbSQL = glbSQL & ", " & """" & supDuplicaAspas(txtcdParametro3) & """"  ' cdItemInformadoParametro3
+      glbSQL = glbSQL & ", " & """" & supDuplicaAspas(txtcdParametro4) & """"  ' cdItemInformadoParametro4
+      glbSQL = glbSQL & ", " & """" & supDuplicaAspas(txtcdParametro5) & """"  ' cdItemInformadoParametro5
+      glbSQL = glbSQL & ", " & Val(mskcdParametro6)                            ' cdItemInformadoParametro6
+      glbSQL = glbSQL & ", " & Val(msknrMargemSuperior)                        ' nrLinhasMargemSuperior
+      glbSQL = glbSQL & ", " & Val(msknrMargemEsquerda)                        ' nrEspacosMargemEsquerda
+      glbSQL = glbSQL & ", " & Val(fugRetornaCodigoSistemaEntrada(SISTEMA_ENTRADA))                        ' idSistemaEntrada
+      glbSQL = glbSQL & ")"
+	  
+	  
+=================================================================================================================
+
+
+glbSQL = "SELECT cdGrupoAssunto, "
+         glbSQL = glbSQL & " SUM(IIf(dtMesMovimento = 0, (vlDebito - vlCredito),0)) as SomaAnoAnterior,  "
+         glbSQL = glbSQL & " SUM(IIF(dtMesMovimento < " & Val(parMesFinal) & ", (vlDebito - vlCredito),0)) as SomaMesAnterior, "
+         glbSQL = glbSQL & " SUM(IIF(dtMesMovimento <= " & Val(parMesFinal) & ", (vlDebito - vlCredito),0)) as SomaAnoAtual "
+         If (parUGRPPS > 0 And glbTipoInstituicao <> 1) Or glbUFPrefeitura = "RS" Or glbUFPrefeitura = "ES" Or glbUFPrefeitura = "PA" Or (Year(glbDtMovimento) >= 2006 And glbUsaAudesp) Or (Year(glbDtMovimento) > 2006 And glbUsaSigap) Or (Year(glbDtMovimento) >= 2008 And glbUFPrefeitura = "SC") Then
+            glbSQL = glbSQL & " FROM SaldoContaContabil, QueryContaContabil, DATAVIEW_GRUPO_ASSUNTO GA "
+            glbSQL = glbSQL & " WHERE SaldoContaContabil.cdContaContabil = QueryContaContabil.cdContaContabil "
+            glbSQL = glbSQL & " AND SaldoContaContabil.cdUnidadeGestora = " & parUGRPPS
+            glbSQL = glbSQL & " AND GA.cdContaContabil = QueryContaContabil.cdContaContabil "
+            glbSQL = glbSQL & " AND (cdUGVinculada = " & parUGRPPS & " OR cdUGVinculada = 9999) "
+            glbSQL = glbSQL & " AND SaldoContaContabil.cdContaContabil IN (SELECT GA.cdContaContabil "
+            glbSQL = glbSQL & "                                                FROM DATAVIEW_GRUPO_ASSUNTO GA "
+            'JLC - 05/12/2013 - 209402 - ANEXO IV - DEM. DE RECEITA/DESPESA PREVID. DO REGIME PRÓP
+            glbSQL = glbSQL & "                                                WHERE GA.cdGrupoAssunto IN (" & enuCGA_Caixa & "," _
+                                                                                                             & enuCGA_BancosContaAplicacaoFinanceira & "," _
+                                                                                                             & enuCGA_BancosContaMovimento & "," _
+                                                                                                             & enuCGA_Realizavel & "," _
+                                                                                                             & enuCGA_BancosControlesEspecificos & "))"
+         Else
+            glbSQL = glbSQL & " FROM RPPSSaldoContaContabil, RPPSContaContabil, DATAVIEW_GRUPO_ASSUNTO GA  "
+            glbSQL = glbSQL & " WHERE RPPSSaldoContaContabil.cdContaContabil = RPPSContaContabil.cdContaContabil "
+            glbSQL = glbSQL & " AND RPPSSaldoContaContabil.cdUnidadeGestora = " & parUGRPPS
+            glbSQL = glbSQL & " AND RPPSSaldoContaContabil.cdContaContabil= GA.cdContaContabil"
+            glbSQL = glbSQL & " AND (cdUGVinculada = " & parUGRPPS & " OR cdUGVinculada = 9999) "
+            glbSQL = glbSQL & " AND RPPSSaldoContaContabil.cdContaContabil IN (SELECT GA.cdContaContabil "
+            glbSQL = glbSQL & "                                                FROM DATAVIEW_GRUPO_ASSUNTO GA "
+            glbSQL = glbSQL & "                                                WHERE GA.cdGrupoAssunto IN (" & enuCGA_Caixa & "," _
+                                                                                                             & enuCGA_BancosContaAplicacaoFinanceira & "," _
+                                                                                                             & enuCGA_BancosContaMovimento & "," _
+                                                                                                             & enuCGA_BancosControlesEspecificos & "))"
+         End If
+		 
+===============================================================================================================
+
+glbSQL = " SELECT  d.CDCATEGORIANIVEL1  AS NIVEL1 " _
+                        & "   ,  d.CDCATEGORIANIVEL2  AS NIVEL2 " _
+                        & "   ,  d.CDCATEGORIANIVEL3  AS NIVEL3 " _
+                        & "   ,  f.IDNIVEL   AS IDNIVEL " _
+                        & "   ,  q.DSCATECONOMICA   AS QUERYCATECONOMICA " _
+                        & "    ,   SUM(CASE WHEN  month(e.dtEmissaoEmpenho) BETWEEN 1 AND 3           THEN v.vlEmpenhado    ELSE 0 END)  " _
+                        & "      - SUM(CASE WHEN  month(e.dtEmissaoEmpenho) BETWEEN 1 AND 3           THEN v.vlAnulado      ELSE 0 END)  as trimestre1  "
+   glbSQL = glbSQL & "         ,   SUM(CASE WHEN  month(e.dtEmissaoEmpenho) BETWEEN 1 AND 6           THEN v.vlEmpenhado    ELSE 0 END) " _
+                            & "  - SUM(CASE WHEN  month(e.dtEmissaoEmpenho) BETWEEN 1 AND 6           THEN v.vlAnulado      ELSE 0 END)  as trimestre2 " _
+                            & ",   SUM(CASE WHEN  month(e.dtEmissaoEmpenho) BETWEEN 1 AND 9           THEN v.vlEmpenhado    ELSE 0 END) " _
+                            & "  - SUM(CASE WHEN  month(e.dtEmissaoEmpenho) BETWEEN 1 AND 9           THEN v.vlAnulado      ELSE 0 END)  as trimestre3 "
+   glbSQL = glbSQL & "         ,   SUM(CASE WHEN  month(e.dtEmissaoEmpenho) BETWEEN 1 AND 12          THEN v.vlEmpenhado    ELSE 0 END) " _& "  - SUM(CASE WHEN  month(e.dtEmissaoEmpenho) BETWEEN 1 AND 12          THEN v.vlAnulado      ELSE 0 END)  as trimestre4 " _
+                            & ",   SUM(CASE WHEN  month(e.dtEmissaoEmpenho) < = " & locTrimestre & "  THEN v.vlLiquidado    ELSE 0 END)  as VLLIQUIDADO  " _
+                            & ",   SUM(CASE WHEN  month(e.dtEmissaoEmpenho) < = " & locTrimestre & "  THEN v.vlPago            ELSE 0 END ) as VLPAGO "
+   glbSQL = glbSQL & " FROM empenho e , valoresempenho v , RELGASTOSEDUCACAO f , QueryDespesaDespesaSecundaria d, QUERYCATECONOMICA q, CODIGOAPLICACAO ca " _
+                  & " WHERE e.cdunidadegestora = d.cdunidadegestora and e.cddespesa = d.cddespesa and e.cdunidadegestora = f.cdunidadegestora " _
+                  & "   AND e.cdUnidadeGestora        = v.cdUnidadeGestora " _
+                  & "   AND e.dtAnoEmissao            = v.dtAnoEmissao " _
+                  & "   AND e.nrEmpenho               = v.nrEmpenho " _
+                  & "   AND   e.cddespesa = f.cdReduzido AND d.CDCATEGORIANIVEL1  =  q.CDCATEGORIANIVEL1 " _
+                  & "   AND d.CDCATEGORIANIVEL2  =  q.CDCATEGORIANIVEL2  AND d.CDCATEGORIANIVEL3  =  q.CDCATEGORIANIVEL3 " _
+                  & "   AND q.CDCATEGORIANIVEL4  =  0  AND q.CDCATEGORIANIVEL5  =  0  AND q.CDCATEGORIANIVEL6  =  0 " _
+                  & "   AND q.CDCATEGORIANIVEL7  =  0  AND q.CDCATEGORIANIVEL8  =  0  and f.IDTIPO  =  2 " _
+                  & "   AND f.IDNIVEL BETWEEN 3 AND 7  AND f.IDNIVEL  <>  6 and v.nrsequenciasubempenho = 0" _
+                  & "   AND ( e.CDAPLICACAO  =  ca.CDAPLICACAO ) " _
+                  & "   AND LEFT( ca.CDAPLICACAO,3) IN (211,221,231,241) "
+   glbSQL = glbSQL & " GROUP BY d.CDCATEGORIANIVEL1   " _
+                  & "   ,  d.CDCATEGORIANIVEL2   " _
+                  & "   ,  d.CDCATEGORIANIVEL3   " _
+                  & "   ,  f.IDNIVEL   " _
+                  & "   ,  q.DSCATECONOMICA   " _
+                  & "   ,  ca.NMAPLICACAO "
+   glbSQL = glbSQL & " ORDER BY d.CDCATEGORIANIVEL1   " _
+                  & "   ,  d.CDCATEGORIANIVEL2   " _
+                  & "   ,  d.CDCATEGORIANIVEL3   " _
+                  & "   ,  f.IDNIVEL   " _
+                  & "   ,  q.DSCATECONOMICA   " _
+                  & "   ,  ca.NMAPLICACAO "
+				  
+===================================================================================================================================
+
+glbSQL = "INSERT INTO PPAConfiguracaoRelatorio ("
+      glbSQL = glbSQL & "cdRelatorio, "
+      glbSQL = glbSQL & "idRodape, "
+      glbSQL = glbSQL & "nrLinhasSalto, "
+      glbSQL = glbSQL & "dsComentario1, "
+      glbSQL = glbSQL & "dsComentario2, "
+      glbSQL = glbSQL & "dsComentario3, "
+      glbSQL = glbSQL & "cdItemInformadoParametro1, "
+      glbSQL = glbSQL & "cdItemInformadoParametro2, "
+      glbSQL = glbSQL & "cdItemInformadoParametro3, "
+      glbSQL = glbSQL & "cdItemInformadoParametro4, "
+      glbSQL = glbSQL & "cdItemInformadoParametro5, "
+      glbSQL = glbSQL & "cdItemInformadoParametro6, "
+      glbSQL = glbSQL & "nrLinhasMargemSuperior, "
+      glbSQL = glbSQL & "nrEspacosMargemEsquerda, "
+      glbSQL = glbSQL & "idSistemaEntrada) "
+      glbSQL = glbSQL & "VALUES ("
+      glbSQL = glbSQL & glbcdRelatorio                                         ' cdRelatorio
+      glbSQL = glbSQL & ", " & cboImprimeRodape.ListIndex                      ' idRodape
+      glbSQL = glbSQL & ", " & IIf(IsNumeric(msknrSaltoLinhas), msknrSaltoLinhas, 0)      ' nrLinhasSalto
+      glbSQL = glbSQL & ", " & """" & supDuplicaAspas(IIf(Trim(txtdsComentario1) = "", " ", txtdsComentario1)) & """"  ' dsComentario1
+      glbSQL = glbSQL & ", " & """" & supDuplicaAspas(IIf(Trim(txtdsComentario2) = "", " ", txtdsComentario2)) & """"  ' dsComentario2
+      glbSQL = glbSQL & ", " & """" & supDuplicaAspas(IIf(Trim(txtdsComentario3) = "", " ", txtdsComentario3)) & """"  ' dsComentario3
+      glbSQL = glbSQL & ", " & """" & supDuplicaAspas(txtcdParametro1) & """"  ' cdItemInformadoParametro1
+      glbSQL = glbSQL & ", " & """" & supDuplicaAspas(txtcdParametro2) & """"  ' cdItemInformadoParametro2
+      glbSQL = glbSQL & ", " & """" & supDuplicaAspas(txtcdParametro3) & """"  ' cdItemInformadoParametro3
+      glbSQL = glbSQL & ", " & """" & supDuplicaAspas(txtcdParametro4) & """"  ' cdItemInformadoParametro4
+      glbSQL = glbSQL & ", " & """" & supDuplicaAspas(txtcdParametro5) & """"  ' cdItemInformadoParametro5
+      glbSQL = glbSQL & ", " & Val(mskcdParametro6)                            ' cdItemInformadoParametro6
+      glbSQL = glbSQL & ", " & Val(msknrMargemSuperior)                        ' nrLinhasMargemSuperior
+      glbSQL = glbSQL & ", " & Val(msknrMargemEsquerda)                        ' nrEspacosMargemEsquerda
+      glbSQL = glbSQL & ", " & Val(fugRetornaCodigoSistemaEntrada(SISTEMA_ENTRADA))                        ' idSistemaEntrada
+      glbSQL = glbSQL & ")"

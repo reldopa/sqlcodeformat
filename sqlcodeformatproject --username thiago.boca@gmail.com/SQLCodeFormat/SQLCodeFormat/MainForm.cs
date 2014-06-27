@@ -273,18 +273,25 @@ namespace SQLCodeFormat
 
                 //Trata linhas que continuam (usando caractere "_")
                 #region Trata linhas que continuam (caractere "_")
-                if ((linha.IndexOf("\" _") > 0) || (linha.IndexOf(" & _") > 0))
+                if ((linha.IndexOf("\" _") > 0) || (linha.IndexOf(" & _") > 0) || (linha.IndexOf(" + _") > 0))
                 {
-                    linhaanterior += linha;
+                    linhaanterior += linha.Trim();
                     continue;
                 }
                 else
                 {
-                    linha = linhaanterior + linha;
+                    linha = linhaanterior + (!linhaanterior.Equals("") ? linha.Trim() : linha); 
                     
                     linha = linha.Replace(" & _", "");
+                    linha = linha.Replace(" + _", "");
+                    linha = linha.Replace("\" _& \"", "");
                     linha = linha.Replace("\" _", "\"");
                     linha = linha.Replace("\" & \"","");
+
+                    //if (!linhaanterior.Equals(""))
+                    //{
+                    //    linha = linha.Replace("\"&\"", "");
+                    //}
                     
                     linhaanterior = "";
                 }
@@ -292,10 +299,10 @@ namespace SQLCodeFormat
 
                 //Replaces
                 #region Replace String
-                linha = linha.Replace("& \"\"\"\" &", "&");
+                linha = linha.Replace("& \"\"\"\" &", "");
                 linha = linha.Replace("& \"\"\"\"", "");
 
-                linha = linha.Replace("& \"\" &", "&");
+                linha = linha.Replace("& \"\" &", "");
                 linha = linha.Replace(" & \"\"", "");
                 linha = linha.Replace("\"\"", "");
 
@@ -555,7 +562,6 @@ namespace SQLCodeFormat
                 }
                 #endregion
 
-
                 //Tratamento do IN 
                 if (linha.IndexOf(IN, StringComparison.CurrentCultureIgnoreCase) >= 0)
                 {
@@ -659,6 +665,7 @@ namespace SQLCodeFormat
         /// </summary>
         /// <param name="pSQL">Comando SQL sujo</param>
         /// <returns>SQL Tratado</returns>
+        #region Converte código CSTR
         public string RetroCSTR(string pSQL)
         {
             const string CSTR = " CSTR(";
@@ -673,12 +680,14 @@ namespace SQLCodeFormat
 
             return resultado;
         }
+        #endregion
 
         /// <summary>
         /// Converte código IIF (próprio Cetil) 
         /// </summary>
         /// <param name="pSQL">Comando SQL sujo</param>
         /// <returns>SQL Tratado</returns>
+        #region Converte código IIF (próprio Cetil)
         public string RetroIIF(string pSQL)
         {
             const string THEN = " THEN ";
@@ -717,7 +726,7 @@ namespace SQLCodeFormat
                         ppos = y + THEN.Length + ELSE.Length;
                         break; //Fim do IIF (encontrado parêntese final)
                     }
-                    if ((resultado[y] == ')') && (ap > 0))
+                    if (((resultado[y] == ')') || (resultado[y] == '|')) && (ap > 0))
                     {
                         ap--;
                     }
@@ -749,6 +758,7 @@ namespace SQLCodeFormat
 
             return resultado;
         }
+        #endregion
 
         /// <summary>
         /// Monta uma lista das posições encontradas
@@ -777,11 +787,6 @@ namespace SQLCodeFormat
         private void gridParametros_KeyPress(object sender, KeyPressEventArgs e)
         {
 
-        }
-
-        private void gridParametros_EditingControlShowing(object sender, DataGridViewEditingControlShowingEventArgs e)
-        {
-            
         }
         
         /// <summary>
@@ -971,11 +976,6 @@ namespace SQLCodeFormat
 
                 HighlightParams();
             }
-        }
-
-        private void gridParametros_CellBeginEdit_1(object sender, DataGridViewCellCancelEventArgs e)
-        {
-            
         }
 
         /// <summary>
