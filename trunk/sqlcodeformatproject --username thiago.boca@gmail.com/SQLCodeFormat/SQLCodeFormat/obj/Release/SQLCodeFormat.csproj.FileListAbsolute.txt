@@ -1,0 +1,11 @@
+C:\Cetil\Projetos_Internos\SQLCodeFormat\SQLCodeFormat\bin\Release\SQLCodeFormat.exe.config
+C:\Cetil\Projetos_Internos\SQLCodeFormat\SQLCodeFormat\bin\Release\SQLCodeFormat.exe
+C:\Cetil\Projetos_Internos\SQLCodeFormat\SQLCodeFormat\bin\Release\SQLCodeFormat.pdb
+C:\Cetil\Projetos_Internos\SQLCodeFormat\SQLCodeFormat\obj\Release\SQLCodeFormat.MainForm.resources
+C:\Cetil\Projetos_Internos\SQLCodeFormat\SQLCodeFormat\obj\Release\SQLCodeFormat.Properties.Resources.resources
+C:\Cetil\Projetos_Internos\SQLCodeFormat\SQLCodeFormat\obj\Release\SQLCodeFormat.csproj.GenerateResource.Cache
+C:\Cetil\Projetos_Internos\SQLCodeFormat\SQLCodeFormat\obj\Release\SQLCodeFormat.exe
+C:\Cetil\Projetos_Internos\SQLCodeFormat\SQLCodeFormat\obj\Release\SQLCodeFormat.pdb
+C:\Cetil\Projetos_Internos\SQLCodeFormat\SQLCodeFormat\obj\Release\SQLCodeFormat.csprojResolveAssemblyReference.cache
+C:\Cetil\Projetos_Internos\SQLCodeFormat\SQLCodeFormat\bin\Release\PoorMansTSqlFormatterLib35.dll
+C:\Cetil\Projetos_Internos\SQLCodeFormat\SQLCodeFormat\bin\Release\PoorMansTSqlFormatterLib35.pdb
