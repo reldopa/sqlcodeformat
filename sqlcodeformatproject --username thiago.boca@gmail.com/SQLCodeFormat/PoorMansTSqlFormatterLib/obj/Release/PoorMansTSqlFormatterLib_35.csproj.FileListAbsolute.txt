@@ -1,0 +1,9 @@
+C:\Users\georgio.schulze\Documents\Visual Studio 2012\Projects\PoorMansTSqlFormatter-master\PoorMansTSqlFormatterLib\bin\Release\PoorMansTSqlFormatterLib35.dll
+C:\Users\georgio.schulze\Documents\Visual Studio 2012\Projects\PoorMansTSqlFormatter-master\PoorMansTSqlFormatterLib\bin\Release\PoorMansTSqlFormatterLib35.pdb
+C:\Users\georgio.schulze\Documents\Visual Studio 2012\Projects\PoorMansTSqlFormatter-master\PoorMansTSqlFormatterLib\obj\Release\PoorMansTSqlFormatterLib35.dll
+C:\Users\georgio.schulze\Documents\Visual Studio 2012\Projects\PoorMansTSqlFormatter-master\PoorMansTSqlFormatterLib\obj\Release\PoorMansTSqlFormatterLib35.pdb
+C:\Cetil\Projetos_Internos\SQLCodeFormat\PoorMansTSqlFormatterLib\bin\Release\PoorMansTSqlFormatterLib35.dll
+C:\Cetil\Projetos_Internos\SQLCodeFormat\PoorMansTSqlFormatterLib\bin\Release\PoorMansTSqlFormatterLib35.pdb
+C:\Cetil\Projetos_Internos\SQLCodeFormat\PoorMansTSqlFormatterLib\obj\Release\PoorMansTSqlFormatterLib35.dll
+C:\Cetil\Projetos_Internos\SQLCodeFormat\PoorMansTSqlFormatterLib\obj\Release\PoorMansTSqlFormatterLib35.pdb
+C:\Cetil\Projetos_Internos\sqlcodeformat\PoorMansTSqlFormatterLib\obj\Release\PoorMansTSqlFormatterLib_35.csprojResolveAssemblyReference.cache

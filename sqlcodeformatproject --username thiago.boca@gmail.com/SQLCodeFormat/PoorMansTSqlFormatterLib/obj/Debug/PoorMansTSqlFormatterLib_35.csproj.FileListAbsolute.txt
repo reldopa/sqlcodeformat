@@ -1,0 +1,5 @@
+C:\Cetil\Projetos_Internos\SQLCodeFormat\PoorMansTSqlFormatterLib\bin\Debug\PoorMansTSqlFormatterLib35.dll
+C:\Cetil\Projetos_Internos\SQLCodeFormat\PoorMansTSqlFormatterLib\bin\Debug\PoorMansTSqlFormatterLib35.pdb
+C:\Cetil\Projetos_Internos\SQLCodeFormat\PoorMansTSqlFormatterLib\obj\Debug\PoorMansTSqlFormatterLib_35.csprojResolveAssemblyReference.cache
+C:\Cetil\Projetos_Internos\SQLCodeFormat\PoorMansTSqlFormatterLib\obj\Debug\PoorMansTSqlFormatterLib35.dll
+C:\Cetil\Projetos_Internos\SQLCodeFormat\PoorMansTSqlFormatterLib\obj\Debug\PoorMansTSqlFormatterLib35.pdb

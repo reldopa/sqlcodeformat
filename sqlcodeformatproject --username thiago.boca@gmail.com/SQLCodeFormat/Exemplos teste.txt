@@ -1,0 +1,214 @@
+glbSQL = "SELECT Sum(iif(dtMesMovimento = " & Val(mskDtMes) & ",VlDebito,0)) as DebitoAcumulado, "
+glbSQL = glbSQL & "Sum(iif(dtMesMovimento = " & Val(mskDtMes) & ",VlCredito,0)) as CreditoAcumulado, "
+glbSQL = glbSQL & "Sum(iif(dtMesMovimento < " & Val(mskDtMes) & ",VlDebito,0)) - "
+glbSQL = glbSQL & "Sum(iif(dtMesMovimento < " & Val(mskDtMes) & ",VlCredito,0)) as SaldoAnterior "
+glbSQL = glbSQL & " FROM SaldoContaContabil, QueryContaCorrente "
+glbSQL = glbSQL & " WHERE SaldoContaContabil.cdContaContabil = QueryContaCorrente.cdContaContabil"
+If Not clsGrupoUnidadeGestora.Consolidado Then
+glbSQL = glbSQL & " AND SaldoContaContabil.cdUnidadeGestora IN " & clsGrupoUnidadeGestora.inGrupoUnidadeGestora
+glbSQL = glbSQL & " AND (QueryContaCorrente.cdUGVinculada IN " & clsGrupoUnidadeGestora.inGrupoUnidadeGestora
+glbSQL = glbSQL & " OR (QueryContaCorrente.cdUGVinculada = 9999"
+glbSQL = glbSQL & " AND QueryContaCorrente.cdUnidadeGestora = " & Val(glbCdUgCriacao) & "))"
+End If
+glbSQL = glbSQL & " AND QueryContaCorrente.cdBanco = " & Val(mskCdBanco)
+glbSQL = glbSQL & " AND QueryContaCorrente.cdAgencia = " & Val(mskCdAgencia)
+glbSQL = glbSQL & " AND QueryContaCorrente.cdContaCorrente = " & Val(mskContaCorrente)
+glbSQL = glbSQL & " AND (QueryContaCorrente.cdUGVinculada IN " & clsGrupoUnidadeGestora.inGrupoUnidadeGestora & ") "
+
+
+
+'Montar a Movimentação da Conta Contábil
+glbSQL = "SELECT cdhistoricosistema, nrsequenciasistema, QueryMovimento.cdUnidadeGestora, nrSequencia,"
+glbSQL = glbSQL & " DtMovimento,DsHistoricoTela,DsComplHistorico, dtDocumento, idDocumentoPagto, "
+glbSQL = glbSQL & " nrDocumentoPagto, nrFundamentoLegal, idFundamentoLegal, cdEmenta, "
+'  FVN 18/02/2004 - Buscar Nro Empenho qdo o Lançamento Pai tiver
+'  Ex: Lançamentos de Eventos (Emissão,Anulação,Liquidação,Pagamento)
+'  OBS: Foi concatenado o Ano do Empenho com o Número, pois trazendo separados, deu
+'  comsulta muito complexa no ACCESS.
+glbSQL = glbSQL & "CdFornecedor,CdContrapartida,CdDespesa,cdReceita,QueryContaContabil.cdContaContabil,"
+glbSQL = glbSQL & " iif(dtAnoEmissao = 0 AND cdHistoricoSistema <> 579,(SELECT CSTR(DtAnoEmissao) & nrEmpenho FROM Movimento"
+glbSQL = glbSQL & " WHERE cdUnidadeGestora = QueryMovimento.cdUnidadeGestora"
+glbSQL = glbSQL & " AND nrSequencia = QueryMovimento.nrSequenciaSistema),"
+glbSQL = glbSQL & " iif(cdHistoricoSistema = 579,(SELECT (SELECT CSTR(DtAnoEmissao) & nrEmpenho FROM Movimento Mov1"
+glbSQL = glbSQL & " WHERE Mov1.cdUnidadeGestora = QueryMovimento.cdUnidadeGestora"
+glbSQL = glbSQL & " AND Mov1.nrSequencia = Mov.nrSequenciaSistema) FROM Movimento Mov"
+glbSQL = glbSQL & " WHERE Mov.cdUnidadeGestora = QueryMovimento.cdUnidadeGestora"
+glbSQL = glbSQL & " AND Mov.nrSequencia = QueryMovimento.nrSequenciaSistema),"
+glbSQL = glbSQL & " CSTR(DtAnoEmissao) & nrEmpenho)) as NroEmpenho,"
+glbSQL = glbSQL & " iif(dtAnoEmissao = 0 AND cdHistoricoSistema <> 579,(SELECT NrSequenciaSubempenho FROM Movimento"
+glbSQL = glbSQL & " WHERE cdUnidadeGestora = QueryMovimento.cdUnidadeGestora"
+glbSQL = glbSQL & " AND nrSequencia = QueryMovimento.nrSequenciaSistema),"
+glbSQL = glbSQL & " iif(cdHistoricoSistema = 579,(SELECT (SELECT nrSequenciaSubempenho FROM Movimento Mov1"
+glbSQL = glbSQL & " WHERE Mov1.cdUnidadeGestora = QueryMovimento.cdUnidadeGestora"
+glbSQL = glbSQL & " AND Mov1.nrSequencia = Mov.nrSequenciaSistema) FROM Movimento Mov"
+glbSQL = glbSQL & " WHERE Mov.cdUnidadeGestora = QueryMovimento.cdUnidadeGestora"
+glbSQL = glbSQL & " AND Mov.nrSequencia = QueryMovimento.nrSequenciaSistema),"
+glbSQL = glbSQL & " NrSequenciaSubempenho)) as NroSubempenho,"
+' --------------------------------------------------------------------------------------------
+glbSQL = glbSQL & "iif(idEmpenho = 2, 'Extra', iif(idEmpenho = 1, iif(dtAnoEmissao < " & Year(glbDtMovimento) & ", 'Restos', 'Orç'), ' ')) as idTipo, "
+glbSQL = glbSQL & "IIF((cdTipoMovimento = 406 or cdTipoMovimento = 407 or cdTipoMovimento = 408 "
+glbSQL = glbSQL & "or cdTipoMovimento = 445 or cdTipoMovimento = 452 or cdTipoMovimento = 454 "
+glbSQL = glbSQL & "or cdTipoMovimento = 461 or cdTipoMovimento = 462 or cdTipoMovimento = 465 "
+glbSQL = glbSQL & "or cdTipoMovimento = 466 or cdTipoMovimento = 473 or cdTipoMovimento = 474 "
+glbSQL = glbSQL & "or cdTipoMovimento = 411 or cdTipoMovimento = 413), VlMovimento * -1, VlMovimento) as ValorMovimento, "
+glbSQL = glbSQL & "IIF((cdTipoMovimento = 406 or cdTipoMovimento = 407 or cdTipoMovimento = 408 "
+glbSQL = glbSQL & "or cdTipoMovimento = 445 or cdTipoMovimento = 452 or cdTipoMovimento = 454 "
+glbSQL = glbSQL & "or cdTipoMovimento = 461 or cdTipoMovimento = 462 or cdTipoMovimento = 465 "
+glbSQL = glbSQL & "or cdTipoMovimento = 466 or cdTipoMovimento = 473 or cdTipoMovimento = 474 "
+'Foi somado 1 para o valor não ficar centavos - jpw 28/01/2003
+glbSQL = glbSQL & "or cdTipoMovimento = 411 or cdTipoMovimento = 413), (VlMovimento + 1) * -1, (VlMovimento + 1)) as X, "
+glbSQL = glbSQL & "VlMovimento as Y "
+glbSQL = glbSQL & " FROM QueryMovimento, QueryContaContabil, QueryContaCorrente, QueryHistoricoPadrao "
+glbSQL = glbSQL & " WHERE QueryMovimento.cdContaContabil = QueryContaContabil.cdContaContabil"
+glbSQL = glbSQL & " AND QueryContaContabil.cdContaContabil = QueryContaCorrente.cdContaContabil"
+If Not clsGrupoUnidadeGestora.Consolidado Then
+glbSQL = glbSQL & " AND QueryMovimento.cdUnidadeGestora IN " & clsGrupoUnidadeGestora.inGrupoUnidadeGestora
+glbSQL = glbSQL & " AND (QueryContaCorrente.cdUGVinculada IN " & clsGrupoUnidadeGestora.inGrupoUnidadeGestora
+glbSQL = glbSQL & " OR (QueryContaCorrente.cdUGVinculada = 9999"
+glbSQL = glbSQL & " AND QueryContaCorrente.cdUnidadeGestora = " & Val(glbCdUgCriacao) & "))"
+
+glbSQL = glbSQL & " AND QueryMovimento.cdUnidadeGestora IN " & clsGrupoUnidadeGestora.inGrupoUnidadeGestora
+glbSQL = glbSQL & " AND (QueryContaContabil.cdUGVinculada IN " & clsGrupoUnidadeGestora.inGrupoUnidadeGestora
+glbSQL = glbSQL & " OR (QueryContaContabil.cdUGVinculada = 9999"
+glbSQL = glbSQL & " AND QueryContaContabil.cdUnidadeGestora = " & Val(glbCdUgCriacao) & "))"
+End If
+glbSQL = glbSQL & " AND QueryContaCorrente.cdBanco = " & Val(mskCdBanco) 'Parametro bla bla
+glbSQL = glbSQL & " AND QueryContaCorrente.cdAgencia = " & Val(mskCdAgencia)
+glbSQL = glbSQL & " AND QueryContaCorrente.cdContaCorrente = " & Val(mskContaCorrente)
+If Val(mskDtMes) <> 99 Then
+If Val(mskDia) <> 99 Then
+glbSQL = glbSQL & " And dtMovimento = #" & Format(locData, "mm/dd/yyyy") 
+glbSQL = glbSQL & " And dtMovimento = #" & Format(locData, "mm/dd/yyyy") & "#"
+Else
+glbSQL = glbSQL & " And Month(dtMovimento) = " & IIf(True, glprotecaotela, glbProtecaoTela)
+End If
+End If
+glbSQL = glbSQL & " And cdTipoMovimento < 500"
+glbSQL = glbSQL & " And QueryMovimento.cdHistoricoPadrao = QueryHistoricoPadrao.cdHistoricoPadrao"
+glbSQL = glbSQL & " Order by DtMovimento, nrSequencia"
+
+
+
+glbSQL = glbSQL & "   SELECT DISTINCT TC_NRREGISTRO AS idPessoa,"
+glbSQL = glbSQL & "   0 AS idContaCredor, "
+glbSQL = glbSQL & "   COALESCE(CCF.cdBanco,0) AS idBanco, "
+glbSQL = glbSQL & "   COALESCE(CONVERT(VARCHAR,CCF.cdAgencia) + CONVERT(VARCHAR,CCF.dgAgencia),' ') AS cdAgencia,"
+glbSQL = glbSQL & "   COALESCE(Convert (VARCHAR, CONVERT(DECIMAL(16),ccf.cdcontacorrente)) + CONVERT(VARCHAR,CCF.DgContaCorrente),' ') AS cdConta,"
+glbSQL = glbSQL & "   CASE F.idTipoFornecedor"
+glbSQL = glbSQL & "        WHEN 1 THEN 2"
+glbSQL = glbSQL & "        WHEN 2 THEN 3"
+glbSQL = glbSQL & "        WHEN 3 THEN 97"
+glbSQL = glbSQL & "        WHEN 4 THEN 1"
+glbSQL = glbSQL & "        WHEN 6 THEN 98"
+glbSQL = glbSQL & "        WHEN 7 THEN 98"
+glbSQL = glbSQL & "        WHEN 5 THEN 97"
+glbSQL = glbSQL & "   END AS tpDocCredor,"
+glbSQL = glbSQL & "   CASE F.idTipoFornecedor"
+glbSQL = glbSQL & "        WHEN 1 THEN CONVERT(VARCHAR, CONVERT(DECIMAL(14), f.nrcgccpf)) "
+glbSQL = glbSQL & "        WHEN 2 THEN CONVERT(VARCHAR, CONVERT(DECIMAL(14), f.nrcgccpf))"
+glbSQL = glbSQL & "        WHEN 3 THEN CONVERT(VARCHAR(15),f.nrinscricaoestadual)"
+glbSQL = glbSQL & "        WHEN 4 THEN CONVERT(VARCHAR(15),f.nrinscricaoestadual)"
+glbSQL = glbSQL & "        WHEN 6 THEN CONVERT(VARCHAR(15),f.nrinscricaoestadual)"
+glbSQL = glbSQL & "        WHEN 7 THEN CONVERT(VARCHAR(15),f.nrinscricaoestadual)"
+glbSQL = glbSQL & "        WHEN 5 THEN CONVERT(VARCHAR(15),f.nrinscricaoestadual)"
+glbSQL = glbSQL & "   END AS nrDocCredor,"
+glbSQL = glbSQL & "   COALESCE(TCEPR_Municipio.cdIBGE,0) AS cdIBGE,"
+glbSQL = glbSQL & "   COALESCE(TCEPR_Municipio.sgUF,' ') AS sgUFAgencia,"
+glbSQL = glbSQL & "   F.cdUnidadeGestora AS cdUnidadeGEstoraCP, "
+glbSQL = glbSQL & "   F.cdFornecedor AS cdFornecedorCP, "
+glbSQL = glbSQL & "   (SELECT MAX(nrHandle) + 1 FROM TCEPR_ContaBancariaCredor) AS nrHandle "
+glbSQL = glbSQL & "   FROM " & glbPrefixoSql & "CPC.dbo.FORNECEDOR F "
+glbSQL = glbSQL & "     INNER JOIN " & glbPrefixoSql & "CPC.dbo.ContaCorrenteFornecedor CCF "
+glbSQL = glbSQL & "   ON (CCF.cdUnidadeGestora = F.cdUnidadeGestora) "
+glbSQL = glbSQL & "   AND (CCF.cdFornecedor = F.cdFornecedor) "
+glbSQL = glbSQL & "     INNER JOIN " & glbPrefixoSql & "CPE" & Year(glbDtMovimento) & ".dbo.Movimento EMP "
+glbSQL = glbSQL & "   ON (EMP.cdFornecedor = F.cdFornecedor) "
+glbSQL = glbSQL & "     INNER JOIN " & glbPrefixoSql & "CPE" & Year(glbDtMovimento) & ".dbo.UnidadeGestora UG "
+glbSQL = glbSQL & "   ON (EMP.cdUnidadeGestora = UG.cdUnidadeGEstora) "
+glbSQL = glbSQL & "   INNER JOIN " & glbPrefixoSql & "CPC.dbo.LocalExtra LocalExtra"
+glbSQL = glbSQL & "   ON F.cdUnidadeGestora = LocalExtra.cdUnidadeGestora"
+glbSQL = glbSQL & "   AND F.cdFornecedor = LocalExtra.cdFornecedor"
+glbSQL = glbSQL & "   INNER JOIN TCEPR_Municipio"
+glbSQL = glbSQL & "   ON LocalExtra.nmCidade COLLATE Latin1_General_CI_AI = LEFT(TCEPR_Municipio.nmMunicipio,50) COLLATE Latin1_General_CI_AI"
+glbSQL = glbSQL & "   AND LocalExtra.sgUF COLLATE Latin1_General_CI_AI = TCEPR_Municipio.sgUF COLLATE Latin1_General_CI_AI"
+glbSQL = glbSQL & "   WHERE F.cdUnidadeGestora ="
+glbSQL = glbSQL & "   CASE WHEN UG.idFormaContabilizacao=1"
+glbSQL = glbSQL & "   THEN (SELECT UG2.cdUnidadeGestora FROM " & glbPrefixoSql & "CPE" & Year(glbDtMovimento) & ".dbo.UnidadeGestora UG2"
+glbSQL = glbSQL & "   WHERE UG2.idFormaContabilizacao=1 AND UG2.idTipoInstituicao=1 AND UG2.cdUnidadeGestora < 9000)"
+glbSQL = glbSQL & "   ELSE UG.cdUnidadeGestora END"
+glbSQL = glbSQL & "   AND dtMovimento BETWEEN " & funSQLAjustaData(pardtInicio) & " AND " & funSQLAjustaData(pardtFim)
+glbSQL = glbSQL & "   AND UG.cdUnidadeGestora = CASE WHEN " & parCdUG & " = 9999 THEN UG.cdUnidadeGestora ELSE " & parCdUG & " END"
+glbSQL = glbSQL & "   AND idPrestacaoContas = CASE WHEN " & parCdUG & " = 9999 THEN 1 ELSE idPrestacaoContas END"
+
+' Não se deve gerar contas dos credores que possuem documentos com mais de 15 bytes, em função do leiaute do TCE-PR.
+' Já existe crítica na funcionalidade Validação das Informações. JH 24/07/2013
+glbSQL = glbSQL & "   AND LEN(nrCGCCPF) <= 15 "
+glbSQL = glbSQL & "   AND LEN(nrInscricaoEstadual) <= 15 "
+ 
+ 
+glbSQL = "SELECT Empenho.dtAnoEmissao, Empenho.nrEmpenho, dtEmissaoEmpenho,"
+glbSQL = glbSQL & " dsTipoEmpenho, idTipoDotacao, dsTipoLicitacao, nrLicitacao, cdCatEmpenho,"
+glbSQL = glbSQL & " nrSolicitacao, nrProcessoCompra, cdFornecedor, Empenho.cdDespesa, cdObjetoDespesa,"
+glbSQL = glbSQL & " Empenho.cdUnidadeGestora, vlEmpenhado"
+glbSQL = glbSQL & " FROM Empenho, Despesa, QueryTipoLicitacao, QueryTipoEmpenho, ValoresEmpenho"
+glbSQL = glbSQL & " WHERE Empenho.dtAnoEmissao = " & locAnoMvto
+glbSQL = glbSQL & " AND Despesa.cdDespesa = Empenho.cdDespesa"
+glbSQL = glbSQL & " AND Empenho.cdUnidadeGestora = Despesa.cdUnidadeGestora"
+glbSQL = glbSQL & " AND Empenho.dtEmissaoEmpenho Between #" & Format(locdtInicial, "mm/dd/yyyy") & "# And #" & Format(locdtFinal, "mm/dd/yyyy") & "#"
+glbSQL = glbSQL & " AND Despesa.idIncorporacaoPatrimonial = 'S'"
+glbSQL = glbSQL & " AND Empenho.cdTipoLicitacao = QueryTipoLicitacao.cdTipoLicitacao"
+glbSQL = glbSQL & " AND Empenho.cdTipoEmpenho = QueryTipoEmpenho.cdTipoEmpenho"
+If Not clsGrupoUnidadeGestora.Consolidado Then
+glbSQL = glbSQL & " AND Empenho.cdUnidadeGestora IN " & clsGrupoUnidadeGestora.inGrupoUnidadeGestora
+End If
+glbSQL = glbSQL & " AND Empenho.cdUnidadeGestora = ValoresEmpenho.cdUnidadeGestora"
+glbSQL = glbSQL & " AND Empenho.dtAnoEmissao = ValoresEmpenho.dtAnoEmissao"
+glbSQL = glbSQL & " AND Empenho.nrEmpenho = ValoresEmpenho.nrEmpenho"
+glbSQL = glbSQL & " AND nrSequenciaSubempenho = 0"
+glbSQL = glbSQL & " ORDER BY dtEmissaoEmpenho"
+
+
+
+ glbSQL = "INSERT INTO RelLRFBalancoOrcamentario ("
+ glbSQL = glbSQL & "cdEntidade, cdFuncao, cdPrograma, cdSubprograma, "
+ glbSQL = glbSQL & "cdCategoriaEconomica, dtAno, dtMes, "
+ glbSQL = glbSQL & "vlInicial, VlAtualizado, VlEmpenhado, "
+ glbSQL = glbSQL & "VlRealizado, vlCota "
+ glbSQL = glbSQL & ",vlSuplementado "
+ glbSQL = glbSQL & ",vlCreditoEspecial "
+ glbSQL = glbSQL & ",vlCreditoExtra "
+ glbSQL = glbSQL & ",vlReducao "
+ glbSQL = glbSQL & ",idNaturezaReceita "
+ glbSQL = glbSQL & ",idNaturezaDespesa "
+ glbSQL = glbSQL & ") "
+ glbSQL = glbSQL & "VALUES ("
+ ' rotina incluída em 07/05/2008 - MFK - 78700 - STN/LRF 2008 Relatórios da Execução Orçamentária
+ ' tratamento da UG do RPPS,será gravado na tabela RelLRFBalancoOrcamentario com cdEntidade = 300
+ If glbTipoInstituicao <> 1 And loccdUGRPPS <> 9998 Then
+	glbSQL = glbSQL & 300       ' Entidade
+	glbSQL = glbSQL & ", " & snpRelTabela!cdFuncao  ' Funcao
+ Else
+	glbSQL = glbSQL & 0       ' Entidade
+	glbSQL = glbSQL & ", 0 "  ' Funcao
+ End If
+ glbSQL = glbSQL & ", 0 "  ' Programa
+ glbSQL = glbSQL & ", 0 "  ' SubPrograma
+ glbSQL = glbSQL & ", " & locCategoria
+ glbSQL = glbSQL & ", " & snpRelTabela!DtAnoMovimento  ' Ano
+ glbSQL = glbSQL & ", " & snpRelTabela!dtMesMovimento  ' Mes
+ glbSQL = glbSQL & ", 0 "    ' Inicial
+ glbSQL = glbSQL & ", 0 "    ' Atualizado
+ glbSQL = glbSQL & ", " & supConverteNumeroFormatoAmericano(snpRelTabela!Empenhado)  'Empenhado
+ glbSQL = glbSQL & ", " & supConverteNumeroFormatoAmericano(snpRelTabela!Liquidado)  'Realizado
+ If IsNull(snpRelTabela!Liberado) Then
+	glbSQL = glbSQL & ", 0 " ' Cota
+ Else
+	glbSQL = glbSQL & ", " & supConverteNumeroFormatoAmericano(snpRelTabela!Liberado) 'Cota
+ End If
+ glbSQL = glbSQL & ", 0 "
+ glbSQL = glbSQL & ", 0 "
+ glbSQL = glbSQL & ", 0 "
+ glbSQL = glbSQL & ", 0 "
+ glbSQL = glbSQL & ", 0 "
+ glbSQL = glbSQL & ", " & locidNaturezaDespesa
+ glbSQL = glbSQL & ")"
