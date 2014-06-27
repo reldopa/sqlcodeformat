@@ -1,4 +1,4 @@
-glbSQL = "SELECT Sum(iif(dtMesMovimento = " & Val(mskDtMes) & ",VlDebito,0)) as DebitoAcumulado, "
+﻿glbSQL = "SELECT Sum(iif(dtMesMovimento = " & Val(mskDtMes) & ",VlDebito,0)) as DebitoAcumulado, "
 glbSQL = glbSQL & "Sum(iif(dtMesMovimento = " & Val(mskDtMes) & ",VlCredito,0)) as CreditoAcumulado, "
 glbSQL = glbSQL & "Sum(iif(dtMesMovimento < " & Val(mskDtMes) & ",VlDebito,0)) - "
 glbSQL = glbSQL & "Sum(iif(dtMesMovimento < " & Val(mskDtMes) & ",VlCredito,0)) as SaldoAnterior "
@@ -15,7 +15,7 @@ glbSQL = glbSQL & " AND QueryContaCorrente.cdAgencia = " & Val(mskCdAgencia)
 glbSQL = glbSQL & " AND QueryContaCorrente.cdContaCorrente = " & Val(mskContaCorrente)
 glbSQL = glbSQL & " AND (QueryContaCorrente.cdUGVinculada IN " & clsGrupoUnidadeGestora.inGrupoUnidadeGestora & ") "
 
-
+==============================================================================================================
 
 'Montar a Movimentação da Conta Contábil
 glbSQL = "SELECT cdhistoricosistema, nrsequenciasistema, QueryMovimento.cdUnidadeGestora, nrSequencia,"
@@ -87,7 +87,7 @@ glbSQL = glbSQL & " And cdTipoMovimento < 500"
 glbSQL = glbSQL & " And QueryMovimento.cdHistoricoPadrao = QueryHistoricoPadrao.cdHistoricoPadrao"
 glbSQL = glbSQL & " Order by DtMovimento, nrSequencia"
 
-
+==============================================================================================================
 
 glbSQL = glbSQL & "   SELECT DISTINCT TC_NRREGISTRO AS idPessoa,"
 glbSQL = glbSQL & "   0 AS idContaCredor, "
@@ -145,6 +145,7 @@ glbSQL = glbSQL & "   AND idPrestacaoContas = CASE WHEN " & parCdUG & " = 9999 T
 glbSQL = glbSQL & "   AND LEN(nrCGCCPF) <= 15 "
 glbSQL = glbSQL & "   AND LEN(nrInscricaoEstadual) <= 15 "
  
+==============================================================================================================
  
 glbSQL = "SELECT Empenho.dtAnoEmissao, Empenho.nrEmpenho, dtEmissaoEmpenho,"
 glbSQL = glbSQL & " dsTipoEmpenho, idTipoDotacao, dsTipoLicitacao, nrLicitacao, cdCatEmpenho,"
@@ -167,7 +168,7 @@ glbSQL = glbSQL & " AND Empenho.nrEmpenho = ValoresEmpenho.nrEmpenho"
 glbSQL = glbSQL & " AND nrSequenciaSubempenho = 0"
 glbSQL = glbSQL & " ORDER BY dtEmissaoEmpenho"
 
-
+==============================================================================================================
 
  glbSQL = "INSERT INTO RelLRFBalancoOrcamentario ("
  glbSQL = glbSQL & "cdEntidade, cdFuncao, cdPrograma, cdSubprograma, "
