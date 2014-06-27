@@ -155,6 +155,7 @@ namespace SQLCodeFormat
             this.gridParametros.TabIndex = 0;
             this.gridParametros.CellBeginEdit += new System.Windows.Forms.DataGridViewCellCancelEventHandler(this.gridParametros_CellBeginEdit_1);
             this.gridParametros.CellEndEdit += new System.Windows.Forms.DataGridViewCellEventHandler(this.gridParametros_CellEndEdit);
+            this.gridParametros.CellEnter += new System.Windows.Forms.DataGridViewCellEventHandler(this.gridParametros_CellEnter);
             this.gridParametros.EditingControlShowing += new System.Windows.Forms.DataGridViewEditingControlShowingEventHandler(this.gridParametros_EditingControlShowing);
             // 
             // btnLimpar
