@@ -32,7 +32,7 @@ namespace SQLCodeFormat
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
             this.tabLinguagem = new System.Windows.Forms.TabControl();
             this.tabPage1 = new System.Windows.Forms.TabPage();
-            this.textVB = new System.Windows.Forms.TextBox();
+            this.textVB = new System.Windows.Forms.RichTextBox();
             this.tabPage2 = new System.Windows.Forms.TabPage();
             this.textSQL = new System.Windows.Forms.RichTextBox();
             this.btnVBtoSQL = new System.Windows.Forms.Button();
@@ -80,11 +80,10 @@ namespace SQLCodeFormat
             this.textVB.Dock = System.Windows.Forms.DockStyle.Fill;
             this.textVB.Font = new System.Drawing.Font("Consolas", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.textVB.Location = new System.Drawing.Point(3, 3);
-            this.textVB.Multiline = true;
             this.textVB.Name = "textVB";
-            this.textVB.ScrollBars = System.Windows.Forms.ScrollBars.Both;
             this.textVB.Size = new System.Drawing.Size(810, 616);
-            this.textVB.TabIndex = 0;
+            this.textVB.TabIndex = 1;
+            this.textVB.Text = "";
             // 
             // tabPage2
             // 
@@ -153,10 +152,8 @@ namespace SQLCodeFormat
             this.gridParametros.RowHeadersWidth = 7;
             this.gridParametros.Size = new System.Drawing.Size(369, 616);
             this.gridParametros.TabIndex = 0;
-            this.gridParametros.CellBeginEdit += new System.Windows.Forms.DataGridViewCellCancelEventHandler(this.gridParametros_CellBeginEdit_1);
             this.gridParametros.CellEndEdit += new System.Windows.Forms.DataGridViewCellEventHandler(this.gridParametros_CellEndEdit);
             this.gridParametros.CellEnter += new System.Windows.Forms.DataGridViewCellEventHandler(this.gridParametros_CellEnter);
-            this.gridParametros.EditingControlShowing += new System.Windows.Forms.DataGridViewEditingControlShowingEventHandler(this.gridParametros_EditingControlShowing);
             // 
             // btnLimpar
             // 
@@ -218,7 +215,6 @@ namespace SQLCodeFormat
     "etil.com.br]   [rafael.semann@cetil.com.br]";
             this.tabLinguagem.ResumeLayout(false);
             this.tabPage1.ResumeLayout(false);
-            this.tabPage1.PerformLayout();
             this.tabPage2.ResumeLayout(false);
             this.panel1.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.gridParametros)).EndInit();
@@ -235,12 +231,12 @@ namespace SQLCodeFormat
         private System.Windows.Forms.Button btnSQLtoVB;
         private System.Windows.Forms.Panel panel1;
         private DataGridView gridParametros;
-        private TextBox textVB;
         private RichTextBox textSQL;
         private Button btnLimpar;
         private Button btnLimparColar;
         private Button btnCopiarSQL;
         private Button btnFormatarSQL;
+        private RichTextBox textVB;
     }
 }
 
