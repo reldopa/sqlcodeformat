@@ -68,45 +68,59 @@ namespace SQLCodeFormat
 
         private void btnVBtoSQL_Click(object sender, EventArgs e)
         {
-            if (!textVB.Text.Trim().Equals(""))
+            try
             {
-                paramList.Clear();
-                gridParametros.DataSource = null;
-                textSQL.Text = FormatVBtoSQL();
-                tabLinguagem.SelectedTab = tabPage2;
-
-                //Todo o texto para preto
-                textSQL.SelectionStart = 0;
-                textSQL.SelectionLength = textSQL.Text.Length;
-                textSQL.SelectionColor = Color.Black;
-
-                if (paramList.Count > 0)
+                if (!textVB.Text.Trim().Equals(""))
                 {
-                    //Formata o grid de parâmetros
-                    gridParametros.DataSource = paramList;
-                    gridParametros.Refresh();
-                    gridParametros.Columns[0].Visible = false;
-                    gridParametros.Columns[1].ReadOnly = true;
-                    gridParametros.Columns[3].Visible = false;
-                    gridParametros.Columns[4].Visible = false;
-                    gridParametros.Columns[1].Width = 200;
-                    gridParametros.Columns[2].Width = 160;
+                    paramList.Clear();
+                    gridParametros.DataSource = null;
+                    textSQL.Text = FormatVBtoSQL();
+                    tabLinguagem.SelectedTab = tabPage2;
 
-                    gridParametros.Columns[1].Name = "Parâmetro";
-                    gridParametros.Columns[2].Name = "Valor";
+                    //Todo o texto para preto
+                    textSQL.SelectionStart = 0;
+                    textSQL.SelectionLength = textSQL.Text.Length;
+                    textSQL.SelectionColor = Color.Black;
+
+                    if (paramList.Count > 0)
+                    {
+                        //Formata o grid de parâmetros
+                        gridParametros.DataSource = paramList;
+                        gridParametros.Refresh();
+                        gridParametros.Columns[0].Visible = false;
+                        gridParametros.Columns[1].ReadOnly = true;
+                        gridParametros.Columns[3].Visible = false;
+                        gridParametros.Columns[4].Visible = false;
+                        gridParametros.Columns[1].Width = 200;
+                        gridParametros.Columns[2].Width = 160;
+
+                        gridParametros.Columns[1].Name = "Parâmetro";
+                        gridParametros.Columns[2].Name = "Valor";
+                    }
+
+                    //Pinta os tokens e parametros do comando SQL
+                    HighlightParams();  //Deixa mais legível
                 }
-                
-                //Pinta os tokens e parametros do comando SQL
-                HighlightParams();  //Deixa mais legível
+            }
+            catch (Exception err)
+            {
+                MessageBox.Show(err.Message, "Problema ao efetuar conversão", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
             }
         }
 
         private void btnSQLtoVB_Click(object sender, EventArgs e)
         {
-            if (!textSQL.Text.Trim().Equals(""))
+            try
             {
-                textVB.Text = FormatSQLtoVB();
-                tabLinguagem.SelectedTab = tabPage1;
+                if (!textSQL.Text.Trim().Equals(""))
+                {
+                    textVB.Text = FormatSQLtoVB();
+                    tabLinguagem.SelectedTab = tabPage1;
+                }
+            }
+            catch (Exception err)
+            {
+                MessageBox.Show(err.Message, "Problema ao efetuar conversão", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
             }
         }
 
@@ -262,7 +276,7 @@ namespace SQLCodeFormat
 
             string preText = textVB.Text.Replace("#", "");
 
-            List<string> linhas = new List<string>(preText.Split(new string[] { "\r\n" }, StringSplitOptions.RemoveEmptyEntries));
+            List<string> linhas = new List<string>(preText.Split(new string[] { "\n" }, StringSplitOptions.RemoveEmptyEntries));
 
             string linhaanterior = "";
 
@@ -616,7 +630,7 @@ namespace SQLCodeFormat
                 if (!conteudo.Equals(""))
                 {
                     linecount++;
-                    resultado += conteudo + Environment.NewLine;
+                    resultado += conteudo + "\n";
                 }
             }
 
@@ -734,11 +748,17 @@ namespace SQLCodeFormat
 
                 if (ppos < 0)
                 {
+                    int pos = textVB.Text.IndexOf("IIF(", (iifs[i] - 1 < 0 ? 0 : iifs[i] - 1), StringComparison.CurrentCultureIgnoreCase);
+                    textVB.Select(pos, 4);
+                    textVB.SelectionColor = Color.Red;
                     throw new Exception("Comando IIF incorreto. Caractere ')' era esperado.");
                 }
 
                 if (v2pos < 0)
                 {
+                    int pos = textVB.Text.IndexOf("IIF(", (iifs[i] - 1 < 0 ? 0 : iifs[i] - 1), StringComparison.CurrentCultureIgnoreCase);
+                    textVB.Select(pos, 4);
+                    textVB.SelectionColor = Color.Red;
                     throw new Exception("Comando IIF incorreto. Caractere ',' era esperado.");
                 }
 
@@ -796,25 +816,6 @@ namespace SQLCodeFormat
         {
             //Posições dos "Parâmetros" em VB encontrados
             //List<int> sharps = getIndexes(textSQL.Text, "#");
-
-            //foreach (int pos in sharps)
-            //{
-            //    int end = textSQL.Text.Length;
-            //    string param = "";
-            //    for (int i = pos; i < end; i++)
-            //    {
-            //        param += textSQL.Text[i];
-            //        foreach (ParametrosSQL item in paramList)
-            //        {
-            //            if (item.tag.Equals(param))
-            //            {
-            //                textSQL.Select(pos, item.tag.Length);
-            //                textSQL.SelectionColor = Color.Red;
-            //                break;
-            //            }
-            //        }
-            //    }
-            //}
 
             int s_start = textSQL.SelectionStart, startIndex = 0, index;
 
@@ -1008,6 +1009,11 @@ namespace SQLCodeFormat
 
                 startIndex = index + word.Length;
             }
+        }
+
+        private void HighlightLinhaErro(int pos)
+        {
+
         }
 
         /// <summary>
