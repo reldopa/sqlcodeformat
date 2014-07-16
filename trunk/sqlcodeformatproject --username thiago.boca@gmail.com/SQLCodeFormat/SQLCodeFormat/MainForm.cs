@@ -544,7 +544,8 @@ namespace SQLCodeFormat
 
                     //Testa se tem código VB6 após a string SQL (da linha) 
                     //(Possivelmente é um parâmetro do SQL)
-                    if (linharesto.Length > 0)
+                    if (linharesto.Replace(")","").Trim().Length > 0)
+                    //if (linharesto.Length > 0)
                     {
                         //Testa se é um comentário após o final da string
                         if (linharesto.IndexOf("\'") >= 0)
