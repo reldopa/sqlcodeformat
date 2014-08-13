@@ -13,7 +13,7 @@ End If
 glbSQL = glbSQL & " AND QueryContaCorrente.cdBanco = " & Val(mskCdBanco)
 glbSQL = glbSQL & " AND QueryContaCorrente.cdAgencia = " & Val(mskCdAgencia)
 glbSQL = glbSQL & " AND QueryContaCorrente.cdContaCorrente = " & Val(mskContaCorrente)
-glbSQL = glbSQL & " AND (QueryContaCorrente.cdUGVinculada IN " & clsGrupoUnidadeGestora.inGrupoUnidadeGestora & ") "
+glbSQL = glbSQL & (" AND (QueryContaCorrente.cdUGVinculada IN " & clsGrupoUnidadeGestora.inGrupoUnidadeGestora & ") ")
 
 ==============================================================================================================
 
@@ -358,3 +358,7 @@ glbSQL = "INSERT INTO PPAConfiguracaoRelatorio ("
       glbSQL = glbSQL & ", " & Val(msknrMargemEsquerda)                        ' nrEspacosMargemEsquerda
       glbSQL = glbSQL & ", " & Val(fugRetornaCodigoSistemaEntrada(SISTEMA_ENTRADA))                        ' idSistemaEntrada
       glbSQL = glbSQL & ")"
+
+===================================================================================================================================
+
+glbSQL = "SELECT IIF(Movimento.cdTipoMovimento IN(474,475) AND Movimento.cdHistoricoSistema IN(592,593), 2,Receita.idContaRedutora) As idContaRedutora"	  

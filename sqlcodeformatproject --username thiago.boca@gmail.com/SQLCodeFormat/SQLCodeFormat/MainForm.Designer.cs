@@ -29,6 +29,7 @@ namespace SQLCodeFormat
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
             this.tabLinguagem = new System.Windows.Forms.TabControl();
             this.tabPage1 = new System.Windows.Forms.TabPage();
@@ -43,6 +44,9 @@ namespace SQLCodeFormat
             this.btnLimparColar = new System.Windows.Forms.Button();
             this.btnCopiarSQL = new System.Windows.Forms.Button();
             this.btnFormatarSQL = new System.Windows.Forms.Button();
+            this.txtVariavel = new System.Windows.Forms.TextBox();
+            this.labelAlerta = new System.Windows.Forms.Label();
+            this.timerAlerta = new System.Windows.Forms.Timer(this.components);
             this.tabLinguagem.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.tabPage2.SuspendLayout();
@@ -52,15 +56,14 @@ namespace SQLCodeFormat
             // 
             // tabLinguagem
             // 
-            this.tabLinguagem.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
+            this.tabLinguagem.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left)));
             this.tabLinguagem.Controls.Add(this.tabPage1);
             this.tabLinguagem.Controls.Add(this.tabPage2);
             this.tabLinguagem.Location = new System.Drawing.Point(0, 42);
             this.tabLinguagem.Name = "tabLinguagem";
             this.tabLinguagem.SelectedIndex = 0;
-            this.tabLinguagem.Size = new System.Drawing.Size(824, 648);
+            this.tabLinguagem.Size = new System.Drawing.Size(824, 645);
             this.tabLinguagem.SizeMode = System.Windows.Forms.TabSizeMode.FillToRight;
             this.tabLinguagem.TabIndex = 0;
             // 
@@ -70,7 +73,7 @@ namespace SQLCodeFormat
             this.tabPage1.Location = new System.Drawing.Point(4, 22);
             this.tabPage1.Name = "tabPage1";
             this.tabPage1.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage1.Size = new System.Drawing.Size(816, 622);
+            this.tabPage1.Size = new System.Drawing.Size(816, 619);
             this.tabPage1.TabIndex = 0;
             this.tabPage1.Text = "Código VB";
             this.tabPage1.UseVisualStyleBackColor = true;
@@ -81,7 +84,7 @@ namespace SQLCodeFormat
             this.textVB.Font = new System.Drawing.Font("Consolas", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.textVB.Location = new System.Drawing.Point(3, 3);
             this.textVB.Name = "textVB";
-            this.textVB.Size = new System.Drawing.Size(810, 616);
+            this.textVB.Size = new System.Drawing.Size(810, 613);
             this.textVB.TabIndex = 1;
             this.textVB.Text = "";
             // 
@@ -134,7 +137,7 @@ namespace SQLCodeFormat
             this.panel1.Controls.Add(this.gridParametros);
             this.panel1.Location = new System.Drawing.Point(830, 64);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(375, 622);
+            this.panel1.Size = new System.Drawing.Size(375, 623);
             this.panel1.TabIndex = 3;
             // 
             // gridParametros
@@ -150,7 +153,7 @@ namespace SQLCodeFormat
             this.gridParametros.MultiSelect = false;
             this.gridParametros.Name = "gridParametros";
             this.gridParametros.RowHeadersWidth = 7;
-            this.gridParametros.Size = new System.Drawing.Size(369, 616);
+            this.gridParametros.Size = new System.Drawing.Size(369, 617);
             this.gridParametros.TabIndex = 0;
             this.gridParametros.CellEndEdit += new System.Windows.Forms.DataGridViewCellEventHandler(this.gridParametros_CellEndEdit);
             this.gridParametros.CellEnter += new System.Windows.Forms.DataGridViewCellEventHandler(this.gridParametros_CellEnter);
@@ -187,7 +190,7 @@ namespace SQLCodeFormat
             // 
             // btnFormatarSQL
             // 
-            this.btnFormatarSQL.Location = new System.Drawing.Point(746, 11);
+            this.btnFormatarSQL.Location = new System.Drawing.Point(745, 12);
             this.btnFormatarSQL.Name = "btnFormatarSQL";
             this.btnFormatarSQL.Size = new System.Drawing.Size(90, 23);
             this.btnFormatarSQL.TabIndex = 7;
@@ -195,11 +198,38 @@ namespace SQLCodeFormat
             this.btnFormatarSQL.UseVisualStyleBackColor = true;
             this.btnFormatarSQL.Click += new System.EventHandler(this.btnFormatarSQL_Click);
             // 
+            // txtVariavel
+            // 
+            this.txtVariavel.Location = new System.Drawing.Point(205, 14);
+            this.txtVariavel.Name = "txtVariavel";
+            this.txtVariavel.Size = new System.Drawing.Size(100, 20);
+            this.txtVariavel.TabIndex = 8;
+            this.txtVariavel.Text = "glbSQL";
+            // 
+            // labelAlerta
+            // 
+            this.labelAlerta.AutoSize = true;
+            this.labelAlerta.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.labelAlerta.ForeColor = System.Drawing.Color.Red;
+            this.labelAlerta.Location = new System.Drawing.Point(830, 42);
+            this.labelAlerta.Name = "labelAlerta";
+            this.labelAlerta.Size = new System.Drawing.Size(299, 13);
+            this.labelAlerta.TabIndex = 9;
+            this.labelAlerta.Text = "Comando SQL copiado para Área de Transferência!";
+            this.labelAlerta.Visible = false;
+            // 
+            // timerAlerta
+            // 
+            this.timerAlerta.Interval = 5000;
+            this.timerAlerta.Tick += new System.EventHandler(this.timerAlerta_Tick);
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1212, 690);
+            this.Controls.Add(this.labelAlerta);
+            this.Controls.Add(this.txtVariavel);
             this.Controls.Add(this.btnFormatarSQL);
             this.Controls.Add(this.btnCopiarSQL);
             this.Controls.Add(this.btnLimparColar);
@@ -209,16 +239,18 @@ namespace SQLCodeFormat
             this.Controls.Add(this.btnVBtoSQL);
             this.Controls.Add(this.tabLinguagem);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
+            this.MinimumSize = new System.Drawing.Size(1228, 360);
             this.Name = "MainForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "Extrator SQL - Beta release - [thiago.oechsler@cetil.com.br]   [georgio.schulze@c" +
-    "etil.com.br]   [rafael.semann@cetil.com.br]";
+            this.Text = "Extrator SQL - Beta release - [thiago.oechsler@govbr.com.br]   [georgio.schulze@g" +
+    "ovbr.com.br]   [rafael.semann@govbr.com.br]";
             this.tabLinguagem.ResumeLayout(false);
             this.tabPage1.ResumeLayout(false);
             this.tabPage2.ResumeLayout(false);
             this.panel1.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.gridParametros)).EndInit();
             this.ResumeLayout(false);
+            this.PerformLayout();
 
         }
 
@@ -237,6 +269,9 @@ namespace SQLCodeFormat
         private Button btnCopiarSQL;
         private Button btnFormatarSQL;
         private RichTextBox textVB;
+        private TextBox txtVariavel;
+        private Label labelAlerta;
+        private Timer timerAlerta;
     }
 }
 
