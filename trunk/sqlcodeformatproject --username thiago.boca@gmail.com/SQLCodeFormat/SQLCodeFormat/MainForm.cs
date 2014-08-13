@@ -19,6 +19,8 @@ namespace SQLCodeFormat
 {
     public partial class MainForm : Form
     {
+        private System.Windows.Forms.ToolTip toolTip1;
+
         const string ERROSQL = "ERRO NO PROCESSAMENTO SQL"; //string padrão de erro
         string SQLTratado = "";  //SQL "puro" depois de ser separado do código VB6
         int paramtag = 0; //parametros muito grandes recebem numeração e nomenclatura padrão
@@ -32,8 +34,12 @@ namespace SQLCodeFormat
         {
             InitializeComponent();
 
+            this.components = new System.ComponentModel.Container();
+
             _tokenizer = new PoorMansTSqlFormatterLib.Tokenizers.TSqlStandardTokenizer();
             _parser = new PoorMansTSqlFormatterLib.Parsers.TSqlStandardParser();
+
+            this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
             
             SetFormatter();
         }
@@ -96,6 +102,13 @@ namespace SQLCodeFormat
 
                         gridParametros.Columns[1].Name = "Parâmetro";
                         gridParametros.Columns[2].Name = "Valor";
+
+                        for (int i = 0; i < paramList.Count; i++)
+                        {
+                            gridParametros.Rows[i].Cells[2].ToolTipText = "Pressione 'Tab' ou 'Enter'";
+                        }
+
+                        gridParametros.Columns[2].ToolTipText = "Valores dos Parâmetros do SQL";
                     }
 
                     //Pinta os tokens e parametros do comando SQL
@@ -259,9 +272,11 @@ namespace SQLCodeFormat
         {
             List<string> linhas = new List<string>(textSQL.Text.Split(new[] { "\n" }, StringSplitOptions.RemoveEmptyEntries));
 
-            string resultado = "glbSQL = \"\"" + Environment.NewLine;
+            string variavel = (txtVariavel.Text.Trim().Equals("") ? "glbSQL" : txtVariavel.Text.Trim());
 
-            return linhas.Aggregate(resultado, (current, t) => current + ("glbSQL = glbSQL & \"" + t + "\" " + Environment.NewLine));
+            string resultado = variavel + " = \"\"" + Environment.NewLine;
+
+            return linhas.Aggregate(resultado, (current, t) => current + (variavel + " = " + variavel + " & \" " + t + " \"" + Environment.NewLine));
         }
 
         public string FormatVBtoSQL()
@@ -722,17 +737,17 @@ namespace SQLCodeFormat
                 int ap = 0;  //Abre Parenteses
 
                 //Trata o iif mais final
-                for (int y = iifs[i]; y < resultado.Length; y++)
+                for (int y = iifs[i]+4; y < resultado.Length; y++)
                 {
-                    if ((resultado[y] == '(') && (v2pos > 0))
+                    if ((resultado[y] == '(')) // && (v2pos > 0))
                     {
                         ap++;
                     }
-                    if ((resultado[y] == ',') && (v1pos < 0))
+                    if ((resultado[y] == ',') && (v1pos < 0) && (ap == 0))
                     {
                         v1pos = y;
                     }
-                    if ((resultado[y] == ',') && (v2pos < 0) && (v1pos != y))
+                    if ((resultado[y] == ',') && (v2pos < 0) && (v1pos != y) && (v1pos > 0))
                     {
                         v2pos = y + THEN.Length;
                     }
@@ -897,6 +912,7 @@ namespace SQLCodeFormat
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
+        [STAThread]
         private void gridParametros_CellEndEdit(object sender, DataGridViewCellEventArgs e)
         {
             if (e.ColumnIndex == 2)
@@ -904,7 +920,8 @@ namespace SQLCodeFormat
                 textSQL.Text = SQLTratado;
 
                 List<GridParamsPositions> gridPos = new List<GridParamsPositions>();
-                
+
+                int totalparamvalues = 0;
                 string tag = ""; //Nome do parametro no grid
                 string valor = ""; //Valor do parametro no grid
 
@@ -912,6 +929,7 @@ namespace SQLCodeFormat
                 {
                     if ((gridParametros[2, l].Value != null) && (!gridParametros[2, l].Value.ToString().Equals("")))
                     {
+                        
                         tag = paramList[l].tag;
                         valor = gridParametros[2, l].Value.ToString();
 
@@ -939,6 +957,8 @@ namespace SQLCodeFormat
 
                         GridParamsPositions p = new GridParamsPositions(pos, l);
                         gridPos.Add(p);
+
+                        totalparamvalues++;
                         
                         textSQL.Text = textSQL.Text.Replace(paramList[l].tag, gridParametros[2, l].Value.ToString());
                     }
@@ -974,6 +994,20 @@ namespace SQLCodeFormat
                             }
                         }
                     }
+                }
+
+                if (totalparamvalues == gridParametros.RowCount)
+                {
+                    Clipboard.Clear();
+
+                    DataObject data = new DataObject();
+                    data.SetData(DataFormats.Text, textSQL.Text);
+                    data.SetData(DataFormats.Rtf, textSQL.Rtf);
+
+                    Clipboard.SetDataObject(data);
+
+                    labelAlerta.Visible = true;
+                    timerAlerta.Enabled = true;
                 }
 
                 HighlightParams();
@@ -1060,6 +1094,11 @@ namespace SQLCodeFormat
         }
         #endregion
 
+        private void timerAlerta_Tick(object sender, EventArgs e)
+        {
+            labelAlerta.Visible = !labelAlerta.Visible;
+            timerAlerta.Enabled = false;
+        }
     }
 
     /// <summary>
