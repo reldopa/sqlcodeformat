@@ -1,4 +1,53 @@
-﻿glbSQL = "SELECT Sum(iif(dtMesMovimento = " & Val(mskDtMes) & ",VlDebito,0)) as DebitoAcumulado, "
+﻿
+ '22/04/2008 - MFK - 91406 - Relatório 11 - Balancete da Receita Diária
+ 'Tarefa da solicitação 90181 - STN/SOF Alterações de Relatórios (parte 2)
+ glbSQL = "SELECT Receita.cdFonteRecurso, Receita.cdReceita, idContaRedutora As ContaRedutora,"
+ If PorCodigoAplicacao Then glbSQL = glbSQL & " Receita.cdAplicacao,"
+ If Year(glbDtMovimento) >= 2007 And chkIntra.Value = vbChecked Then
+	glbSQL = glbSQL & " IIF(QCE.cdCategoriaNivel1 = 7, 2, "
+	glbSQL = glbSQL & " IIF(QCE.cdCategoriaNivel1 = 2, 3, "
+	glbSQL = glbSQL & " IIF(QCE.cdCategoriaNivel1 = 8, 4, QCE.cdCategoriaNivel1))) AS Tipo, "
+ End If
+ glbSQL = glbSQL & " QCE.cdCategoriaNivel1 As Nivel1, QCE.cdCategoriaNivel2 As Nivel2,"
+ glbSQL = glbSQL & " QCE.cdCategoriaNivel3 As Nivel3, QCE.cdCategoriaNivel4 As Nivel4,"
+ glbSQL = glbSQL & " QCE.cdCategoriaNivel5 As Nivel5, QCE.cdCategoriaNivel6 As Nivel6,"
+ glbSQL = glbSQL & " QCE.cdCategoriaNivel7 As Nivel7, QCE.cdCategoriaNivel8 As Nivel8,"
+ glbSQL = glbSQL & " cdNaturezaFormatada, "
+ ' Receita Prevista
+ glbSQL = glbSQL & " SUM(IIF(cdTipoMovimento = 470 AND cdHistoricoSistema = 470 AND MONTH(dtMovimento) <= " & Val(mskdtMes) & ", vlMovimento,0))  "
+ glbSQL = glbSQL & " - SUM(IIF(cdTipoMovimento = 471 AND cdHistoricoSistema = 471 AND MONTH(dtMovimento) <= " & Val(mskdtMes) & ", vlMovimento,0)) As ReceitaPrevista, " 'As ReceitaPrevista, "
+ 
+ glbSQL = glbSQL & " SUM(IIF(cdTipoMovimento = 453 AND dtMovimento = #" & Format(locData, "mm/dd/yyyy") & "#, vlMovimento,0)) + "
+ glbSQL = glbSQL & " SUM(IIF(cdTipoMovimento = 472 AND dtMovimento = #" & Format(locData, "mm/dd/yyyy") & "#, vlMovimento,0)) - "
+ glbSQL = glbSQL & " SUM(IIF(cdTipoMovimento = 454 AND dtMovimento = #" & Format(locData, "mm/dd/yyyy") & "#, vlMovimento,0)) - "
+ glbSQL = glbSQL & " SUM(IIF(cdTipoMovimento = 473 AND dtMovimento = #" & Format(locData, "mm/dd/yyyy") & "#, vlMovimento,0)) AS ArrecadadoNoDia,"
+ 
+ glbSQL = glbSQL & " SUM(IIF(cdTipoMovimento = 453 AND dtMovimento BETWEEN #" & Format(locDataInicial, "mm/dd/yyyy") & "# AND #" & Format(locData, "mm/dd/yyyy") & "#, vlMovimento,0)) + "
+ glbSQL = glbSQL & " SUM(IIF(cdTipoMovimento = 472 AND dtMovimento BETWEEN #" & Format(locDataInicial, "mm/dd/yyyy") & "# AND #" & Format(locData, "mm/dd/yyyy") & "#, vlMovimento,0)) - "
+ glbSQL = glbSQL & " SUM(IIF(cdTipoMovimento = 454 AND dtMovimento BETWEEN #" & Format(locDataInicial, "mm/dd/yyyy") & "# AND #" & Format(locData, "mm/dd/yyyy") & "#, vlMovimento,0)) - "
+ glbSQL = glbSQL & " SUM(IIF(cdTipoMovimento = 473 AND dtMovimento BETWEEN #" & Format(locDataInicial, "mm/dd/yyyy") & "# AND #" & Format(locData, "mm/dd/yyyy") & "#, vlMovimento,0)) AS ArrecadadoNoMes,"
+ 
+ glbSQL = glbSQL & " SUM(IIF(cdTipoMovimento = 472 AND dtMovimento <= #" & Format(locData, "mm/dd/yyyy") & "#, vlMovimento,0))  - "
+ glbSQL = glbSQL & " SUM(IIF(cdTipoMovimento = 473 AND dtMovimento <= #" & Format(locData, "mm/dd/yyyy") & "#, vlMovimento,0)) AS ArrecadadoNoAno"
+ glbSQL = glbSQL & " FROM Movimento, Receita"
+ glbSQL = glbSQL & " INNER JOIN QueryCatEconomica QCE ON QCE.idNaturezaReceita = Receita.idNaturezaReceita "
+ glbSQL = glbSQL & " WHERE Movimento.cdReceita = Receita.cdReceita"
+ glbSQL = glbSQL & " AND (cdTipoMovimento BETWEEN 470 AND 475 OR cdTipoMovimento BETWEEN 453 AND 454)"
+ glbSQL = glbSQL & " AND dtMovimento <= #" & Format(locData, "mm/dd/yyyy") & "#"
+ glbSQL = glbSQL & " AND Receita.cdUnidadeGestora = Movimento.cdUnidadeGestora"
+ If PorFonteRecurso And Val(mskCdFonteRecurso) <> locTodasFonteRecurso Then glbSQL = glbSQL & " AND Receita.cdFonteRecurso = " & Val(mskCdFonteRecurso)
+ If PorCodigoAplicacao And Val(locCodigoAplicacao) <> locTodosCodigoAplicacao Then glbSQL = glbSQL & " AND Receita.cdAplicacao = " & Val(glfIdCodigoAplicacao)
+ If Not clsGrupoUnidadeGestora.Consolidado Then
+	glbSQL = glbSQL & " AND Movimento.cdUnidadeGestora IN " & clsGrupoUnidadeGestora.inGrupoUnidadeGestora
+ End If
+ If chkIntra.Value = vbUnchecked Then
+	glbSQL = glbSQL & " AND (QCE.cdCategoriaNivel1 <> 7 "
+	glbSQL = glbSQL & " AND QCE.cdCategoriaNivel1 <> 8)"
+ End If
+
+===============================================================================================================
+
+glbSQL = "SELECT Sum(iif(dtMesMovimento = " & Val(mskDtMes) & ",VlDebito,0)) as DebitoAcumulado, "
 glbSQL = glbSQL & "Sum(iif(dtMesMovimento = " & Val(mskDtMes) & ",VlCredito,0)) as CreditoAcumulado, "
 glbSQL = glbSQL & "Sum(iif(dtMesMovimento < " & Val(mskDtMes) & ",VlDebito,0)) - "
 glbSQL = glbSQL & "Sum(iif(dtMesMovimento < " & Val(mskDtMes) & ",VlCredito,0)) as SaldoAnterior "

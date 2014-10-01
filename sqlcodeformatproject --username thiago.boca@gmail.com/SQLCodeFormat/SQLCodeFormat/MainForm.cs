@@ -397,6 +397,11 @@ namespace SQLCodeFormat
                 #region Tratamento da instrução IIF do VB6
                 if (linha.IndexOf(IIF) >= 0)
                 {
+                    if (linha.IndexOf("\"" + IIF) <= 0)
+                    {
+                        linha = linha.Substring(0, linha.IndexOf(IIF)) + " & \" \"" + linha.Substring(linha.IndexOf(IIF), linha.Length - linha.IndexOf(IIF));
+                    }
+                   
                     while (linha.IndexOf(IIF) >= 0)
                     {
                         int ap = 1; //Abre parenteses
@@ -438,6 +443,7 @@ namespace SQLCodeFormat
                             }
                         }
                     }
+                    
                 }
                 #endregion
 
@@ -445,6 +451,11 @@ namespace SQLCodeFormat
                 #region Tratamento da instrução Format do VB6
                 if (linha.IndexOf(FORMAT) >= 0)
                 {
+                    if (linha.IndexOf("\"" + FORMAT) <= 0)
+                    {
+                        linha = linha.Substring(0, linha.IndexOf(FORMAT)) + " & \" \"" + linha.Substring(linha.IndexOf(FORMAT), linha.Length - linha.IndexOf(FORMAT));
+                    }
+
                     while (linha.IndexOf(FORMAT) >= 0)
                     {
                         int ap = 1; //Abre parenteses
@@ -494,6 +505,11 @@ namespace SQLCodeFormat
                 #region Tratamento da instrução Mid do VB6
                 if (linha.IndexOf(MID) >= 0)
                 {
+                    if (linha.IndexOf("\"" + MID) <= 0)
+                    {
+                        linha = linha.Substring(0, linha.IndexOf(MID)) + " & \" \"" + linha.Substring(linha.IndexOf(MID), linha.Length - linha.IndexOf(MID));
+                    }
+
                     while (linha.IndexOf(MID) >= 0)
                     {
                         int ap = 1; //Abre parenteses
@@ -876,6 +892,8 @@ namespace SQLCodeFormat
             //Purple
             HighlightText("INNER JOIN", Color.Purple, null, null);
             HighlightText("ON", Color.Purple, null, null);
+            HighlightText("LEFT JOIN", Color.Purple, null, null);
+            HighlightText("RIGHT JOIN", Color.Purple, null, null);
             //Magenta
             HighlightText("CONVERT", Color.Magenta, new List<string> { ",", "(" }, new List<string> { "(" });
             HighlightText("COALESCE", Color.Magenta, new List<string> { ",", "(" }, new List<string> { "(" });
