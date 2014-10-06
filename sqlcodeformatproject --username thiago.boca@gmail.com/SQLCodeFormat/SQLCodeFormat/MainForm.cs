@@ -19,7 +19,12 @@ namespace SQLCodeFormat
 {
     public partial class MainForm : Form
     {
+        public static MainForm mainForm;
+
         private System.Windows.Forms.ToolTip toolTip1;
+
+        Parametros config = new Parametros();
+        FormParametros parametrosConfiguracao = new FormParametros();
 
         const string ERROSQL = "ERRO NO PROCESSAMENTO SQL"; //string padrão de erro
         string SQLTratado = "";  //SQL "puro" depois de ser separado do código VB6
@@ -34,22 +39,39 @@ namespace SQLCodeFormat
         {
             InitializeComponent();
 
-            this.components = new System.ComponentModel.Container();
-
             _tokenizer = new PoorMansTSqlFormatterLib.Tokenizers.TSqlStandardTokenizer();
             _parser = new PoorMansTSqlFormatterLib.Parsers.TSqlStandardParser();
 
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
-            
+            this.components = new System.ComponentModel.Container();
+
             SetFormatter();
         }
 
-        private void SetFormatter()
+        public void SetFormatter()
         {
             PoorMansTSqlFormatterLib.Interfaces.ISqlTreeFormatter innerFormatter;
 
             innerFormatter = new PoorMansTSqlFormatterLib.Formatters.TSqlStandardFormatter(new PoorMansTSqlFormatterLib.Formatters.TSqlStandardFormatterOptions
             {
+                IndentString = "  ",
+                SpacesPerTab = 4,
+                MaxLineWidth = Parametros.configParametros._MaxWidth,
+                ExpandCommaLists = Parametros.configParametros._ExpandCommaLists,
+                TrailingCommas = Parametros.configParametros._TrailingCommas,
+                SpaceAfterExpandedComma = Parametros.configParametros._SpaceAfterComma,
+                ExpandBooleanExpressions = Parametros.configParametros._ExpandBooleanExpressions,
+                ExpandCaseStatements = Parametros.configParametros._ExpandCaseStatements,
+                ExpandBetweenConditions = Parametros.configParametros._ExpandBetweenConditions,
+                ExpandInLists = Parametros.configParametros._ExpandInLists,
+                BreakJoinOnSections = Parametros.configParametros._BreakJoinOnSections,
+                UppercaseKeywords = Parametros.configParametros._UppercaseKeywords,
+                HTMLColoring = Parametros.configParametros._Coloring,
+                KeywordStandardization = Properties.Settings.Default.KeywordSubstitution,
+                NewStatementLineBreaks = Properties.Settings.Default.NewStatementLineBreaks,
+                NewClauseLineBreaks = Properties.Settings.Default.NewClauseLineBreaks
+
+                /*
                 IndentString = "  ",
                 SpacesPerTab = 4,
                 MaxLineWidth = Properties.Settings.Default.MaxWidth,
@@ -66,6 +88,8 @@ namespace SQLCodeFormat
                 KeywordStandardization = Properties.Settings.Default.KeywordSubstitution,
                 NewStatementLineBreaks = Properties.Settings.Default.NewStatementLineBreaks,
                 NewClauseLineBreaks = Properties.Settings.Default.NewClauseLineBreaks
+                */
+
             });
 
             innerFormatter.ErrorOutputPrefix = ERROSQL + Environment.NewLine;
@@ -309,19 +333,19 @@ namespace SQLCodeFormat
                 }
                 else
                 {
-                    linha = linhaanterior + (!linhaanterior.Equals("") ? linha.Trim() : linha); 
-                    
+                    linha = linhaanterior + (!linhaanterior.Equals("") ? linha.Trim() : linha);
+
                     linha = linha.Replace(" & _", "");
                     linha = linha.Replace(" + _", "");
                     linha = linha.Replace("\" _& \"", "");
                     linha = linha.Replace("\" _", "\"");
-                    linha = linha.Replace("\" & \"","");
+                    linha = linha.Replace("\" & \"", "");
 
                     //if (!linhaanterior.Equals(""))
                     //{
                     //    linha = linha.Replace("\"&\"", "");
                     //}
-                    
+
                     linhaanterior = "";
                 }
                 #endregion
@@ -348,7 +372,7 @@ namespace SQLCodeFormat
                     int count = linha.Count(c => c == '\'');
 
                     //Se impar indica que contém comentário
-                    if (count%2 != 0)
+                    if (count % 2 != 0)
                     {
                         //Busca o último caracter ' pois indica o começo do cometário
                         int last = linha.LastIndexOf("'", StringComparison.Ordinal);
@@ -401,7 +425,7 @@ namespace SQLCodeFormat
                     {
                         linha = linha.Substring(0, linha.IndexOf(IIF)) + " & \" \"" + linha.Substring(linha.IndexOf(IIF), linha.Length - linha.IndexOf(IIF));
                     }
-                   
+
                     while (linha.IndexOf(IIF) >= 0)
                     {
                         int ap = 1; //Abre parenteses
@@ -443,7 +467,7 @@ namespace SQLCodeFormat
                             }
                         }
                     }
-                    
+
                 }
                 #endregion
 
@@ -575,7 +599,7 @@ namespace SQLCodeFormat
 
                     //Testa se tem código VB6 após a string SQL (da linha) 
                     //(Possivelmente é um parâmetro do SQL)
-                    if (linharesto.Replace(")","").Trim().Length > 0)
+                    if (linharesto.Replace(")", "").Trim().Length > 0)
                     //if (linharesto.Length > 0)
                     {
                         //Testa se é um comentário após o final da string
@@ -648,7 +672,7 @@ namespace SQLCodeFormat
                     a2 = a1;
                     if (param)
                     {
-                        conteudo += pp.tag + linha.Substring(0, a1);  
+                        conteudo += pp.tag + linha.Substring(0, a1);
                     }
                     else
                     {
@@ -720,9 +744,9 @@ namespace SQLCodeFormat
 
             string resultado = "";
 
-            resultado = pSQL.Replace(CSTR,CONVERT);
+            resultado = pSQL.Replace(CSTR, CONVERT);
 
-            resultado = resultado.Replace(EC," + ");
+            resultado = resultado.Replace(EC, " + ");
 
             return resultado;
         }
@@ -745,7 +769,7 @@ namespace SQLCodeFormat
             //Busca todos os índices de IIF
             List<int> iifs = getIndexes(pSQL, "IIF(");
 
-            for (int i = iifs.Count-1; i >= 0; i--)
+            for (int i = iifs.Count - 1; i >= 0; i--)
             {
                 int v1pos = -1;  //Primeira vírgula
                 int v2pos = -1;  //Segunda vírgula
@@ -753,7 +777,7 @@ namespace SQLCodeFormat
                 int ap = 0;  //Abre Parenteses
 
                 //Trata o iif mais final
-                for (int y = iifs[i]+4; y < resultado.Length; y++)
+                for (int y = iifs[i] + 4; y < resultado.Length; y++)
                 {
                     if ((resultado[y] == '(')) // && (v2pos > 0))
                     {
@@ -796,8 +820,8 @@ namespace SQLCodeFormat
 
                 //THEN .. ELSE .. END
                 resultado = resultado.Substring(0, v1pos) + THEN + resultado.Substring(v1pos + 1, resultado.Length - v1pos - 1);
-                resultado = resultado.Substring(0, v2pos-1) + ELSE + resultado.Substring(v2pos , resultado.Length - v2pos);
-                resultado = resultado.Substring(0, ppos-2) + ENDx + resultado.Substring(ppos -1, resultado.Length - ppos +1);
+                resultado = resultado.Substring(0, v2pos - 1) + ELSE + resultado.Substring(v2pos, resultado.Length - v2pos);
+                resultado = resultado.Substring(0, ppos - 2) + ENDx + resultado.Substring(ppos - 1, resultado.Length - ppos + 1);
             }
 
             resultado = resultado.Replace("iif(", " CASE WHEN ");
@@ -823,12 +847,26 @@ namespace SQLCodeFormat
             List<int> indexes = new List<int>();
 
             int intlastpos = 0;
-            while (plinha.IndexOf(strvalue, StringComparison.CurrentCultureIgnoreCase) >= 0)
+
+            if (!strvalue.Contains("(") && !strvalue.Contains("glbPrefixo"))
             {
-                int pos = plinha.IndexOf(strvalue, StringComparison.CurrentCultureIgnoreCase);
-                indexes.Add(intlastpos + pos);
-                intlastpos += pos + strvalue.Length;
-                plinha = plinha.Substring(pos + strvalue.Length, plinha.Length - pos - strvalue.Length);
+                while ((Regex.Match(plinha, @"#(\bparametro\b)".Replace("parametro", strvalue.Substring(1, strvalue.Length - 1))).Index) > 0)
+                {
+                    int pos = Regex.Match(plinha, @"#(\bparametro\b)".Replace("parametro", strvalue.Substring(1, strvalue.Length - 1))).Index;
+                    indexes.Add(intlastpos + pos);
+                    intlastpos += pos + strvalue.Length;
+                    plinha = plinha.Substring(pos + strvalue.Length, plinha.Length - pos - strvalue.Length);
+                }
+            }
+            else
+            {
+                while (plinha.IndexOf(strvalue, StringComparison.CurrentCultureIgnoreCase) >= 0)
+                {
+                    int pos = plinha.IndexOf(strvalue, StringComparison.CurrentCultureIgnoreCase);
+                    indexes.Add(intlastpos + pos);
+                    intlastpos += pos + strvalue.Length;
+                    plinha = plinha.Substring(pos + strvalue.Length, plinha.Length - pos - strvalue.Length);
+                }
             }
 
             indexes.Sort();
@@ -840,7 +878,7 @@ namespace SQLCodeFormat
         {
 
         }
-        
+
         /// <summary>
         /// Aplica cores ao Texto SQL já tratado
         /// </summary>
@@ -910,7 +948,8 @@ namespace SQLCodeFormat
 
         private void gridParametros_CellEnter(object sender, DataGridViewCellEventArgs e)
         {
-            if ((gridParametros[1, e.RowIndex].Value != null) && (gridParametros[2, e.RowIndex].Value.ToString().Equals("")))
+            //if ((gridParametros[1, e.RowIndex].Value != null) && (gridParametros[2, e.RowIndex].Value.ToString().Equals("")))
+            if ((gridParametros[0, e.RowIndex].Value != null) && (gridParametros[1, e.RowIndex].Value.ToString().Equals("")))
             {
                 int s_start = textSQL.SelectionStart, startIndex = 0, index;
                 string word = paramList[e.RowIndex].tag.ToString();
@@ -947,17 +986,16 @@ namespace SQLCodeFormat
                 {
                     if ((gridParametros[2, l].Value != null) && (!gridParametros[2, l].Value.ToString().Equals("")))
                     {
-                        
+
                         tag = paramList[l].tag;
                         valor = gridParametros[2, l].Value.ToString();
 
                         List<int> pos = getIndexes(textSQL.Text, paramList[l].tag);
-                        int ajuste  = (tag.Length - valor.Length);
+                        int ajuste = (tag.Length - valor.Length);
                         for (int i = 1; i < pos.Count; i++)
                         {
                             pos[i] = pos[i] - (ajuste * i);
 
-                            
                         }
                         for (int i = 0; i < pos.Count; i++)
                         {
@@ -977,8 +1015,15 @@ namespace SQLCodeFormat
                         gridPos.Add(p);
 
                         totalparamvalues++;
-                        
-                        textSQL.Text = textSQL.Text.Replace(paramList[l].tag, gridParametros[2, l].Value.ToString());
+
+                        if (!paramList[l].tag.Contains("(") && !paramList[l].tag.Contains("glbPrefixo"))
+                        {
+                            textSQL.Text = new Regex(@"#(\bparametro\b)".Replace("parametro", paramList[l].tag.Substring(1, paramList[l].tag.Length - 1))).Replace(textSQL.Text, gridParametros[2, l].Value.ToString());
+                        }
+                        else
+                        {
+                            textSQL.Text = textSQL.Text.Replace(paramList[l].tag, gridParametros[2, l].Value.ToString());
+                        }
                     }
                 }
 
@@ -987,7 +1032,6 @@ namespace SQLCodeFormat
 
                 for (int l = 0; l < gridParametros.RowCount; l++)
                 {
-                    
                     if ((gridParametros[2, l].Value != null) && (!gridParametros[2, l].Value.ToString().Equals("")))
                     {
                         tag = paramList[l].tag;
@@ -999,7 +1043,7 @@ namespace SQLCodeFormat
                         foreach (GridParamsPositions item in gridPos)
                         {
                             paramnum++;
-                            
+
                             if (item.gridrow == l)
                             {
                                 pos = item.list;
@@ -1117,6 +1161,26 @@ namespace SQLCodeFormat
             labelAlerta.Visible = !labelAlerta.Visible;
             timerAlerta.Enabled = false;
         }
+
+        private void btnOpcoes_Click(object sender, EventArgs e)
+        {
+            this.Enabled = false;
+            abrirTelaConfiguracoes();
+            MainForm.mainForm = this;
+        }
+
+        private void abrirTelaConfiguracoes()
+        {
+            parametrosConfiguracao = new FormParametros();
+            parametrosConfiguracao.Visible = true;
+
+        }
+
+
+        public void salvarConfiguracoes()
+        {
+            throw new NotImplementedException();
+        }
     }
 
     /// <summary>
@@ -1135,15 +1199,46 @@ namespace SQLCodeFormat
     }
 
     /// <summary>
+    /// Parametros do usuário
+    /// </summary>
+    public class Parametros
+    {
+        public int _IndentWidth { get; set; }
+        public int _MaxWidth { get; set; }
+        public int _StatementBreaks { get; set; }
+        public int _ClauseBreaks { get; set; }
+        public bool _ExpandCommaLists { get; set; }
+        public bool _TrailingCommas { get; set; }
+        public bool _SpaceAfterComma { get; set; }
+        public bool _ExpandBooleanExpressions { get; set; }
+        public bool _ExpandCaseStatements { get; set; }
+        public bool _ExpandBetweenConditions { get; set; }
+        public bool _ExpandInLists { get; set; }
+        public bool _BreakJoinOnSections { get; set; }
+        public bool _UppercaseKeywords { get; set; }
+        public bool _Coloring { get; set; }
+        public bool _EnableKeywordStandardization { get; set; }
+        public bool _ExisteConfiguracao { get; set; }
+
+        public static Parametros configParametros = new Parametros();
+
+        public Parametros()
+        {
+            _ExisteConfiguracao = false;
+            configParametros = this;
+        }
+    }
+
+    /// <summary>
     /// Parâmetro do SQL
     /// </summary>
     public class ParametrosSQL
     {
         public string tag { get; set; }
-        public string Nome { get; set; } 
+        public string Nome { get; set; }
         public string Valor { get; set; }
         public int pos { get; set; }
-        public int line { get; set; } 
+        public int line { get; set; }
 
         public ParametrosSQL(String pName, String pValor, int pLineposition, int pLinenumber, string ptag = "")
         {
@@ -1158,7 +1253,7 @@ namespace SQLCodeFormat
             else
             {
                 this.tag = ptag;
-            }            
+            }
         }
     }
 }

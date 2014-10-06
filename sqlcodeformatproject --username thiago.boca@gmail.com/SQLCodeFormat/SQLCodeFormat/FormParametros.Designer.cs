@@ -250,8 +250,6 @@
             // chk_Coloring
             // 
             this.chk_Coloring.AutoSize = true;
-            this.chk_Coloring.Checked = true;
-            this.chk_Coloring.CheckState = System.Windows.Forms.CheckState.Checked;
             this.chk_Coloring.ImeMode = System.Windows.Forms.ImeMode.NoControl;
             this.chk_Coloring.Location = new System.Drawing.Point(8, 327);
             this.chk_Coloring.Name = "chk_Coloring";
@@ -330,7 +328,7 @@
             this.ClientSize = new System.Drawing.Size(482, 438);
             this.Controls.Add(this.groupBox5);
             this.Name = "FormParametros";
-            this.Text = "FormParametros";
+            this.Text = "Configurar Parâmetros";
             this.groupBox5.ResumeLayout(false);
             this.tableLayoutPanel2.ResumeLayout(false);
             this.grp_Options.ResumeLayout(false);

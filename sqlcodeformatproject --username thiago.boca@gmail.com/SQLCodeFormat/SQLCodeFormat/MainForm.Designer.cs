@@ -47,6 +47,7 @@ namespace SQLCodeFormat
             this.txtVariavel = new System.Windows.Forms.TextBox();
             this.labelAlerta = new System.Windows.Forms.Label();
             this.timerAlerta = new System.Windows.Forms.Timer(this.components);
+            this.btnOpcoes = new System.Windows.Forms.Button();
             this.tabLinguagem.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.tabPage2.SuspendLayout();
@@ -94,7 +95,7 @@ namespace SQLCodeFormat
             this.tabPage2.Location = new System.Drawing.Point(4, 22);
             this.tabPage2.Name = "tabPage2";
             this.tabPage2.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage2.Size = new System.Drawing.Size(816, 622);
+            this.tabPage2.Size = new System.Drawing.Size(816, 619);
             this.tabPage2.TabIndex = 1;
             this.tabPage2.Text = "Comando SQL";
             this.tabPage2.UseVisualStyleBackColor = true;
@@ -105,7 +106,7 @@ namespace SQLCodeFormat
             this.textSQL.Font = new System.Drawing.Font("Consolas", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.textSQL.Location = new System.Drawing.Point(3, 3);
             this.textSQL.Name = "textSQL";
-            this.textSQL.Size = new System.Drawing.Size(810, 616);
+            this.textSQL.Size = new System.Drawing.Size(810, 613);
             this.textSQL.TabIndex = 1;
             this.textSQL.Text = "";
             // 
@@ -223,11 +224,22 @@ namespace SQLCodeFormat
             this.timerAlerta.Interval = 5000;
             this.timerAlerta.Tick += new System.EventHandler(this.timerAlerta_Tick);
             // 
+            // btnOpcoes
+            // 
+            this.btnOpcoes.Location = new System.Drawing.Point(841, 11);
+            this.btnOpcoes.Name = "btnOpcoes";
+            this.btnOpcoes.Size = new System.Drawing.Size(90, 23);
+            this.btnOpcoes.TabIndex = 8;
+            this.btnOpcoes.Text = "Opções";
+            this.btnOpcoes.UseVisualStyleBackColor = true;
+            this.btnOpcoes.Click += new System.EventHandler(this.btnOpcoes_Click);
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1212, 690);
+            this.Controls.Add(this.btnOpcoes);
             this.Controls.Add(this.labelAlerta);
             this.Controls.Add(this.txtVariavel);
             this.Controls.Add(this.btnFormatarSQL);
@@ -272,6 +284,7 @@ namespace SQLCodeFormat
         private TextBox txtVariavel;
         private Label labelAlerta;
         private Timer timerAlerta;
+        private Button btnOpcoes;
     }
 }
 
