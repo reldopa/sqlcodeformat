@@ -414,3 +414,20 @@ glbSQL = "INSERT INTO PPAConfiguracaoRelatorio ("
 ===================================================================================================================================
 
 glbSQL = "SELECT IIF(Movimento.cdTipoMovimento IN(474,475) AND Movimento.cdHistoricoSistema IN(592,593), 2,Receita.idContaRedutora) As idContaRedutora"	  
+
+===================================================================================================================================
+
+locSQL = "SELECT ppaplanoconta.cdNivelContabil AS NIVEL,PPAPlanoContaOcorrencia.cdContaContabil,PPAPlanoContaOcorrencia.idTipoConta,PPAPlanoContaOcorrencia.dsConta "
+         locSQL = locSQL & " FROM ppaplanoconta , PPAPlanoContaOcorrencia "
+         locSQL = locSQL & " WHERE ppaplanoconta.cdcontacontabil = PPAPlanoContaOcorrencia.cdContaContabil "
+         locSQL = locSQL & " AND PPAPlanoContaOcorrencia.cdContaContabil = " & Val(cSinteticas.FieldByName("cdContaPCasp").Value)
+         'GAS
+         locSQL = locSQL & " AND PPAPlanoConta.idPlanoContaVigencia = " & fugBuscaVigenciaPlanoConta("01/01/" & GlbExercicio + 1)
+         locSQL = locSQL & " AND Year(PPAPlanoContaOcorrencia.dtAlteracao) <= " & GlbExercicio + 1
+         locSQL = locSQL & "      AND idSituacao = 0"
+         locSQL = locSQL & "      AND dtAlteracao = ("
+         locSQL = locSQL & "         SELECT Max(dtAlteracao)"
+         locSQL = locSQL & "         FROM PPAPlanoContaOcorrencia PCO1"
+         locSQL = locSQL & "         Where PCO1.cdContaContabil = PPAPlanoContaOcorrencia.cdContaContabil"
+         locSQL = locSQL & "            AND Year(PCO1.dtAlteracao) <= " & GlbExercicio + 1
+         locSQL = locSQL & "         )"
