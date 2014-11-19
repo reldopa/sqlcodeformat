@@ -88,6 +88,7 @@ namespace SQLCodeFormat
             this.textVB.Size = new System.Drawing.Size(810, 613);
             this.textVB.TabIndex = 1;
             this.textVB.Text = "";
+            this.textVB.WordWrap = false;
             // 
             // tabPage2
             // 
@@ -109,6 +110,7 @@ namespace SQLCodeFormat
             this.textSQL.Size = new System.Drawing.Size(810, 613);
             this.textSQL.TabIndex = 1;
             this.textSQL.Text = "";
+            this.textSQL.WordWrap = false;
             // 
             // btnVBtoSQL
             // 

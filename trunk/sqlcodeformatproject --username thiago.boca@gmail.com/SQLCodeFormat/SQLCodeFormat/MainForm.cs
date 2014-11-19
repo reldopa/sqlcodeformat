@@ -54,7 +54,7 @@ namespace SQLCodeFormat
 
             innerFormatter = new PoorMansTSqlFormatterLib.Formatters.TSqlStandardFormatter(new PoorMansTSqlFormatterLib.Formatters.TSqlStandardFormatterOptions
             {
-                IndentString = "  ",
+                IndentString = new String(' ', Parametros.configParametros._IndentWidth), //"  ",
                 SpacesPerTab = 4,
                 MaxLineWidth = Parametros.configParametros._MaxWidth,
                 ExpandCommaLists = Parametros.configParametros._ExpandCommaLists,
@@ -66,10 +66,10 @@ namespace SQLCodeFormat
                 ExpandInLists = Parametros.configParametros._ExpandInLists,
                 BreakJoinOnSections = Parametros.configParametros._BreakJoinOnSections,
                 UppercaseKeywords = Parametros.configParametros._UppercaseKeywords,
-                HTMLColoring = Parametros.configParametros._Coloring,
-                KeywordStandardization = Properties.Settings.Default.KeywordSubstitution,
-                NewStatementLineBreaks = Properties.Settings.Default.NewStatementLineBreaks,
-                NewClauseLineBreaks = Properties.Settings.Default.NewClauseLineBreaks
+                HTMLColoring = false,
+                KeywordStandardization = Parametros.configParametros._EnableKeywordStandardization,
+                NewStatementLineBreaks = Parametros.configParametros._StatementBreaks,
+                NewClauseLineBreaks = Parametros.configParametros._ClauseBreaks
 
                 /*
                 IndentString = "  ",
