@@ -1,0 +1,1 @@
+Extrator de SQL para código VB6
